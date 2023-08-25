@@ -14,11 +14,11 @@ io.on("connection", (socket) => {
     console.log(`${name} connected`);
     io.emit("login", name);
     let roomNum = 1 + Math.floor(Math.random() * 8);
-    socket.join(`Room${roomNum}`);
+    socket.join(roomNum);
     socket.emit("roomNumSet", roomNum);
 
     socket.on("chat message", (msg) => {
-      io.emit("chat message", { name, msg });
+      io.to(roomNum).emit("chat message", { name, msg });
     });
   });
 

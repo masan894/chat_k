@@ -99,11 +99,11 @@
       });
 
       socket.on("login", (name) => {
-        addlogin(name + "がログインしました。");
+        addlogin(name + " さん" + "がログインしました。");
       });
 
       socket.on("chat message", (data) => {
-        addMessage("[" + data.name + "] " + data.msg);
+        addMessage("[" + data.name + " さん" + "] " + data.msg);
       });
 
       socket.on("roomNumSet", (roomNum) => {
@@ -126,7 +126,8 @@
       }
 
       function addRoomNum(Num) {
-        document.getElementById("roomId").innerText = `Room ${Num}`;
+        let h2Room = document.getElementById("roomId");
+        h2Room.innerText = `Room ${Num}`;
       }
     </script>
   </body>
