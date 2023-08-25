@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>k-anonymization chat</title>
+    <style>
+      body {
+        margin: 0;
+        padding-bottom: 3rem;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+      }
+
+      #mainChat {
+        /*float: left;*/
+      }
+
+      #form {
+        width: 40%;
+        height: 12%;
+        background: rgba(0, 0, 0, 0.15);
+        padding: 0.25rem;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        box-sizing: border-box;
+        backdrop-filter: blur(10px);
+      }
+      #mainTextArea {
+        border: none;
+        padding: 0 1rem;
+        flex-grow: 1;
+        border-radius: 2rem;
+        margin: 0.25rem;
+        overflow: auto;
+        resize: none;
+        font-size: 1.5em;
+      }
+      #mainTextArea:focus {
+        outline: none;
+      }
+      #form > button {
+        background: #333;
+        border: none;
+        padding: 0 1rem;
+        margin: 0.25rem;
+        border-radius: 3px;
+        outline: none;
+        color: #fff;
+      }
+
+      #mainMessages {
+        width: 40%;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: auto;
+      }
+      #mainMessages > li {
+        padding: 0.5rem 1rem;
+      }
+      #mainMessages > li:nth-child(odd) {
+        background: #efefef;
+      }
+    </style>
+  </head>
+  <body>
+    <h2 id="roomId">半匿名チャット</h2>
+    <section id="mainChat">
+      <ul id="mainMessages"></ul>
+      <form id="form" action="">
+        <textarea id="mainTextArea" rows="3"></textarea
+        ><button id="button">送信</button>
+      </form>
+    </section>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      const form = document.getElementById("form");
+      const mainTextArea = document.getElementById("mainTextArea");
+
+      let name = window.prompt("名前(苗字+名前)を入力してください");
+      if (name == null || name == "") {
+        window.alert("ページを更新し、正しい名前を入力し直してください");
+        const button = document.getElementById("button");
+        button.disabled = true;
+      } else {
+        socket.emit("login", name);
+      }
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (mainTextArea.value) {
+          socket.emit("chat message", mainTextArea.value);
+          mainTextArea.value = "";
+        }
+      });
+
+      socket.on("login", (name) => {
+        addlogin(name + "がログインしました。");
+      });
+
+      socket.on("chat message", (data) => {
+        addMessage("[" + data.name + "] " + data.msg);
+      });
+
+      socket.on("roomNumSet", (roomNum) => {
+        addRoomNum(roomNum);
+      });
+
+      function addlogin(msg) {
+        let item = document.createElement("li");
+        item.innerText = msg;
+        mainMessages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+
+      function addMessage(msg) {
+        let item = document.createElement("li");
+        let posttime = new Date().toLocaleString();
+        item.innerText = `${msg} \n ${posttime}`;
+        mainMessages.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+
+      function addRoomNum(Num) {
+        document.getElementById("roomId").innerText = `Room ${Num}`;
+      }
+    </script>
+  </body>
+</html>
