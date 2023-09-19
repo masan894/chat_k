@@ -1,78 +1,122 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>k-anonymization chat</title>
+    <title>k-chat</title>
     <style>
       body {
         margin: 0;
-        padding-bottom: 3rem;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Helvetica, Arial, sans-serif;
       }
 
       #mainChat {
-        /*float: left;*/
+        width: 50%;
+        float: left;
+      }
+
+      #subChat {
+        position: fixed;
+        left: 50%;
+        overflow: auto;
+      }
+
+      div[id*="log"] {
+        /*display: none;*/
+        left: 50%;
       }
 
       #form {
-        width: 40%;
+        width:50%;
         height: 12%;
         background: rgba(0, 0, 0, 0.15);
-        padding: 0.25rem;
         position: fixed;
         bottom: 0;
-        left: 0;
-        right: 0;
         display: flex;
-        box-sizing: border-box;
-        backdrop-filter: blur(10px);
       }
       #mainTextArea {
-        border: none;
-        padding: 0 1rem;
         flex-grow: 1;
-        border-radius: 2rem;
-        margin: 0.25rem;
         overflow: auto;
         resize: none;
         font-size: 1.5em;
       }
-      #mainTextArea:focus {
-        outline: none;
-      }
       #form > button {
         background: #333;
-        border: none;
-        padding: 0 1rem;
-        margin: 0.25rem;
-        border-radius: 3px;
+        padding: 1rem;
+        border-radius: 9px;
         outline: none;
+        font-size: 1.5em;
         color: #fff;
       }
 
-      #mainMessages {
-        width: 40%;
-        list-style-type: none;
+      #mainLog {
         margin: 0;
         padding: 0;
         overflow: auto;
       }
-      #mainMessages > li {
+      #mainLog > li {
         padding: 0.5rem 1rem;
+        font-size: 1.5em;
       }
-      #mainMessages > li:nth-child(odd) {
+      #mainLog > li:nth-child(odd) {
         background: #efefef;
       }
     </style>
   </head>
   <body>
-    <h2 id="roomId">半匿名チャット</h2>
     <section id="mainChat">
-      <ul id="mainMessages"></ul>
+      <h1 id="roomId">k-chat</h2>
+      <ul id="mainLog"></ul>
       <form id="form" action="">
         <textarea id="mainTextArea" rows="3"></textarea
         ><button id="button">送信</button>
       </form>
+    </section>
+    <!--ここから右半分-->
+    <section id="subChat">
+      <h2>他のグループのチャットを見に行こう</h2>
+      <select id="roomSelect" onchange="viewChange();">
+        <option value="0">全ルームログ（長いです）</option>
+        <option value="1">Room1</option>
+        <option value="2">Room2</option>
+        <option value="3">Room3</option>
+        <option value="4">Room4</option>
+        <option value="5">Room5</option>
+        <option value="6">Room6</option>
+        <option value="7">Room7</option>
+        <option value="8">Room8</option>
+      </select>
+      <div id="log1">
+        <h2 id="member1">Room1:</h2>
+        <ul id="sub1"></ul>
+      </div>
+      <div id="log2">
+        <h2 id="member2">Room2:</h2>
+        <ul id="sub2"></ul>
+      </div>
+      <div id="log3">
+        <h2 id="member3">Room3:</h2>
+        <ul id="sub3"></ul>
+      </div>
+      <div id="log4">
+        <h2 id="member4">Room4:</h2>
+        <ul id="sub4"></ul>
+      </div>
+      <div id="log5">
+        <h2 id="member5">Room5:</h2>
+        <ul id="sub5"></ul>
+      </div>
+      <div id="log6">
+        <h2 id="member6">Room6:</h2>
+        <ul id="sub6"></ul>
+      </div>
+      <div id="log7">
+        <h2 id="member7">Room7:</h2>
+        <ul id="sub7"></ul>
+      </div>
+      <div id="log8">
+        <h2 id="member8">Room8:</h2>
+        <ul id="sub8"></ul>
+      </div>
     </section>
     <script src="/socket.io/socket.io.js"></script>
     <script>
@@ -81,7 +125,7 @@
       const form = document.getElementById("form");
       const mainTextArea = document.getElementById("mainTextArea");
 
-      let name = window.prompt("名前(苗字+名前)を入力してください");
+      let name = window.prompt("氏名(漢字)を入力してください");
       if (name == null || name == "") {
         window.alert("ページを更新し、正しい名前を入力し直してください");
         const button = document.getElementById("button");
@@ -102,8 +146,18 @@
         addlogin(name + " さん" + "がログインしました。");
       });
 
+
       socket.on("chat message", (data) => {
         addMessage("[" + data.name + " さん" + "] " + data.msg);
+      });
+
+      socket.on("log message", (data) => {
+        addLog(data.msg,data.roomNum);
+      });
+
+      
+      socket.on("addMember", (data) => {
+        addMember(data.name,data.roomNum);
       });
 
       socket.on("roomNumSet", (roomNum) => {
@@ -113,21 +167,63 @@
       function addlogin(msg) {
         let item = document.createElement("li");
         item.innerText = msg;
-        mainMessages.appendChild(item);
+        mainLog.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
+      }
+
+      function addMember(name,roomNum) {
+        let a = document.getElementById("roomId");
+        let member1 = document.getElementById("member1");
+        let member2 = document.getElementById("member2");
+        let member3 = document.getElementById("member3");
+        let member4 = document.getElementById("member4");
+        let member5 = document.getElementById("member5");
+        let member6 = document.getElementById("member6");
+        let member7 = document.getElementById("member7");
+        let member8 = document.getElementById("member8");
+        const memberArray = [0,member1,member2,member3,member4,member5,member6,member7,member8];
+        memberArray[roomNum].textContent += name + ","
       }
 
       function addMessage(msg) {
         let item = document.createElement("li");
         let posttime = new Date().toLocaleString();
         item.innerText = `${msg} \n ${posttime}`;
-        mainMessages.appendChild(item);
+        mainLog.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
       }
 
+      function addLog(msg,roomNum){
+        let item = document.createElement("li");
+        let posttime = new Date().toLocaleString();
+        let sub1 = document.getElementById("sub1");
+        let sub2 = document.getElementById("sub2");
+        let sub3 = document.getElementById("sub3");
+        let sub4 = document.getElementById("sub4");
+        let sub5 = document.getElementById("sub5");
+        let sub6 = document.getElementById("sub6");
+        let sub7 = document.getElementById("sub7");
+        let sub8 = document.getElementById("sub8");
+        const roomArray = [0,sub1,sub2,sub3,sub4,sub5,sub6,sub7,sub8];
+        item.innerText = `${msg} \n ${posttime}`;
+        roomArray[roomNum].appendChild(item);
+      }
+
       function addRoomNum(Num) {
-        let h2Room = document.getElementById("roomId");
-        h2Room.innerText = `Room ${Num}`;
+        let id = document.getElementById("roomId");
+        id.innerText = `Room ${Num}`;
+      }
+
+      function viewChange() {
+        let id = document.getElementById("roomSelect").selectedIndex;
+        console.log(id);
+        for (let z = 1; z < 9; z++) {
+          if (z == id) {
+            document.getElementById(`log${z}`).style.display = "";
+          } else {
+            document.getElementById(`log${z}`).style.display = "none";
+          }
+        }
       }
     </script>
   </body>
