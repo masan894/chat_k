@@ -148,11 +148,11 @@
 
 
       socket.on("chat message", (data) => {
-        addMessage("[" + data.name + " さん" + "] " + data.msg);
+        addMessage("[" + data.name + " さん" + "] " + data.msg,data.postTime);
       });
 
       socket.on("log message", (data) => {
-        addLog(data.msg,data.roomNum);
+        addLog(data.msg,data.roomNum,data.postTime);
       });
 
       
@@ -185,17 +185,16 @@
         memberArray[roomNum].textContent += name + ","
       }
 
-      function addMessage(msg) {
+      function addMessage(msg,postTime) {
         let item = document.createElement("li");
         let posttime = new Date().toLocaleString();
-        item.innerText = `${msg} \n ${posttime}`;
+        item.innerText = `${msg} \n ${postTime}`;
         mainLog.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
       }
 
-      function addLog(msg,roomNum){
+      function addLog(msg,roomNum,postTime){
         let item = document.createElement("li");
-        let posttime = new Date().toLocaleString();
         let sub1 = document.getElementById("sub1");
         let sub2 = document.getElementById("sub2");
         let sub3 = document.getElementById("sub3");
@@ -205,7 +204,7 @@
         let sub7 = document.getElementById("sub7");
         let sub8 = document.getElementById("sub8");
         const roomArray = [0,sub1,sub2,sub3,sub4,sub5,sub6,sub7,sub8];
-        item.innerText = `${msg} \n ${posttime}`;
+        item.innerText = `${msg} \n ${postTime}`;
         roomArray[roomNum].appendChild(item);
       }
 
@@ -222,6 +221,11 @@
             document.getElementById(`log${z}`).style.display = "";
           } else {
             document.getElementById(`log${z}`).style.display = "none";
+          }
+        }
+        if(id == 0) {
+          for (let z = 1; z < 9; z++) {
+            document.getElementById(`log${z}`).style.display = "";
           }
         }
       }
