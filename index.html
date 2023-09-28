@@ -86,35 +86,35 @@
         <option value="8">Room8</option>
       </select>
       <div id="log1">
-        <h2 id="member1">Room1:</h2>
+        <h2>Room1:<div id="member1" style="display: inline-block; _display: inline;"></div></h2>
         <ul id="sub1"></ul>
       </div>
       <div id="log2">
-        <h2 id="member2">Room2:</h2>
+        <h2>Room2:<div id="member2" style="display: inline-block; _display: inline;"></div></h2>
         <ul id="sub2"></ul>
       </div>
       <div id="log3">
-        <h2 id="member3">Room3:</h2>
+        <h2>Room3:<div id="member3" style="display: inline-block; _display: inline;"></div></h2>
         <ul id="sub3"></ul>
       </div>
       <div id="log4">
-        <h2 id="member4">Room4:</h2>
+        <h2>Room4:<div id="member4" style="display: inline-block; _display: inline;"></div></h2>
         <ul id="sub4"></ul>
       </div>
       <div id="log5">
-        <h2 id="member5">Room5:</h2>
+        <h2>Room5:<div id="member5" style="display: inline-block; _display: inline;"></div></h2>
         <ul id="sub5"></ul>
       </div>
       <div id="log6">
-        <h2 id="member6">Room6:</h2>
+        <h2>Room6:<div id="member6" style="display: inline-block; _display: inline;"></div></h2>
         <ul id="sub6"></ul>
       </div>
       <div id="log7">
-        <h2 id="member7">Room7:</h2>
+        <h2>Room7:<div id="member7" style="display: inline-block; _display: inline;"></div></h2>
         <ul id="sub7"></ul>
       </div>
       <div id="log8">
-        <h2 id="member8">Room8:</h2>
+        <h2>Room8:<div id="member8" style="display: inline-block; _display: inline;"></div></h2>
         <ul id="sub8"></ul>
       </div>
     </section>
@@ -125,7 +125,8 @@
       const form = document.getElementById("form");
       const mainTextArea = document.getElementById("mainTextArea");
 
-      let name = window.prompt("氏名(漢字)を入力してください");
+      window.addEventListener("load",function() {
+        let name = window.prompt("ユーザー名を入力してください");
       if (name == null || name == "") {
         window.alert("ページを更新し、正しい名前を入力し直してください");
         const button = document.getElementById("button");
@@ -133,6 +134,7 @@
       } else {
         socket.emit("login", name);
       }
+    });
 
       form.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -146,7 +148,6 @@
         addlogin(name + " さん" + "がログインしました。");
       });
 
-
       socket.on("chat message", (data) => {
         addMessage("[" + data.name + " さん" + "] " + data.msg,data.postTime);
       });
@@ -155,9 +156,8 @@
         addLog(data.msg,data.roomNum,data.postTime);
       });
 
-      
-      socket.on("addMember", (data) => {
-        addMember(data.name,data.roomNum);
+      socket.on("changeMember", (data) => {
+        changeMember(data);
       });
 
       socket.on("roomNumSet", (roomNum) => {
@@ -171,8 +171,7 @@
         window.scrollTo(0, document.body.scrollHeight);
       }
 
-      function addMember(name,roomNum) {
-        let a = document.getElementById("roomId");
+      function changeMember(data) {
         let member1 = document.getElementById("member1");
         let member2 = document.getElementById("member2");
         let member3 = document.getElementById("member3");
@@ -182,7 +181,8 @@
         let member7 = document.getElementById("member7");
         let member8 = document.getElementById("member8");
         const memberArray = [0,member1,member2,member3,member4,member5,member6,member7,member8];
-        memberArray[roomNum].textContent += name + ","
+
+        memberArray[data.roomNum].textContent += data.name + ","
       }
 
       function addMessage(msg,postTime) {
