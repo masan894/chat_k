@@ -89,10 +89,11 @@ io.on("connection", (socket) => {
         console.error(e);
       }
     });
-  });
-
-  socket.on("disconnect", () => {
-    console.log("disconnected");
+    socket.on("disconnect", async () => {
+      io.emit("removeMember", { name, roomNum });
+      console.log(`${name} disconnected`);
+      await Name.deleteMany({ name: name });
+    });
   });
 });
 
