@@ -7,17 +7,30 @@
         margin: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           Helvetica, Arial, sans-serif;
+        height: 100vh;
       }
 
       #mainChat {
         width: 50%;
         float: left;
+        flex: 1;
+        overflow: hidden;
+        max-height: 100vh;
+        background: #cdc1b2;
+      }
+
+      #mainChat:hover {
+        overflow: auto;
       }
 
       #subChat {
         position: fixed;
         left: 50%;
+        flex: 1;
         overflow: auto;
+        max-height: 100vh;
+        max-width: 100vh;
+        background: #a3d1bf;
       }
 
       div[id*="log"] {
@@ -26,16 +39,14 @@
       }
 
       #form {
-        width:50%;
         height: 12%;
         background: rgba(0, 0, 0, 0.15);
-        position: fixed;
+        /*position: fixed;*/
         bottom: 0;
         display: flex;
       }
       #mainTextArea {
         flex-grow: 1;
-        overflow: auto;
         resize: none;
         font-size: 1.5em;
       }
@@ -51,12 +62,46 @@
       #mainLog {
         margin: 0;
         padding: 0;
-        overflow: auto;
       }
+
       #mainLog > li {
         padding: 0.5rem 1rem;
         font-size: 1.5em;
+        border-radius: 10px;
+        /* 吹き出し本体 */
+        position: relative;
+        background-color: #90d2ec;
+        border: 2px solid #65c6ec;
       }
+
+      /* beforeで枠線の三角を表現 */
+      #mainLog > li::before {
+        content: "";
+        position: absolute;
+        display: block;
+        width: 0;
+        height: 0;
+        left: 20px;
+        top: -15px;
+        border-right: 15px solid transparent;
+        border-bottom: 15px solid #65c6ec;
+        border-left: 15px solid transparent;
+      }
+
+      /* beforeで本体の三角を表現 */
+      #mainLog > li::after {
+        content: "";
+        position: absolute;
+        display: block;
+        width: 0;
+        height: 0;
+        left: 20px;
+        top: -12px;
+        border-right: 15px solid transparent;
+        border-bottom: 15px solid #65c6ec;
+        border-left: 15px solid transparent;
+      }
+
       #mainLog > li:nth-child(odd) {
         background: #efefef;
       }
@@ -64,7 +109,7 @@
   </head>
   <body>
     <section id="mainChat">
-      <h1 id="roomId">k-chat</h2>
+      <h1 id="roomId">k-chat</h1>
       <ul id="mainLog"></ul>
       <form id="form" action="">
         <textarea id="mainTextArea" rows="3"></textarea
@@ -75,46 +120,94 @@
     <section id="subChat">
       <h2>他のグループのチャットを見に行こう</h2>
       <select id="roomSelect" onchange="viewChange();">
-        <option value="0">全ルームログ（長いです）</option>
-        <option value="1">Room1</option>
-        <option value="2">Room2</option>
-        <option value="3">Room3</option>
-        <option value="4">Room4</option>
-        <option value="5">Room5</option>
-        <option value="6">Room6</option>
-        <option value="7">Room7</option>
-        <option value="8">Room8</option>
+        <option value="0">全ルームログ</option>
+        <option value="1">ルーム1</option>
+        <option value="2">ルーム2</option>
+        <option value="3">ルーム3</option>
+        <option value="4">ルーム4</option>
+        <option value="5">ルーム5</option>
+        <option value="6">ルーム6</option>
+        <option value="7">ルーム7</option>
+        <option value="8">ルーム8</option>
       </select>
       <div id="log1">
-        <h2 id="member1">Room1:</h2>
+        <h2>
+          Room1:
+          <div
+            id="member1"
+            style="display: inline-block; _display: inline"
+          ></div>
+        </h2>
         <ul id="sub1"></ul>
       </div>
       <div id="log2">
-        <h2 id="member2">Room2:</h2>
+        <h2>
+          Room2:
+          <div
+            id="member2"
+            style="display: inline-block; _display: inline"
+          ></div>
+        </h2>
         <ul id="sub2"></ul>
       </div>
       <div id="log3">
-        <h2 id="member3">Room3:</h2>
+        <h2>
+          Room3:
+          <div
+            id="member3"
+            style="display: inline-block; _display: inline"
+          ></div>
+        </h2>
         <ul id="sub3"></ul>
       </div>
       <div id="log4">
-        <h2 id="member4">Room4:</h2>
+        <h2>
+          Room4:
+          <div
+            id="member4"
+            style="display: inline-block; _display: inline"
+          ></div>
+        </h2>
         <ul id="sub4"></ul>
       </div>
       <div id="log5">
-        <h2 id="member5">Room5:</h2>
+        <h2>
+          Room5:
+          <div
+            id="member5"
+            style="display: inline-block; _display: inline"
+          ></div>
+        </h2>
         <ul id="sub5"></ul>
       </div>
       <div id="log6">
-        <h2 id="member6">Room6:</h2>
+        <h2>
+          Room6:
+          <div
+            id="member6"
+            style="display: inline-block; _display: inline"
+          ></div>
+        </h2>
         <ul id="sub6"></ul>
       </div>
       <div id="log7">
-        <h2 id="member7">Room7:</h2>
+        <h2>
+          Room7:
+          <div
+            id="member7"
+            style="display: inline-block; _display: inline"
+          ></div>
+        </h2>
         <ul id="sub7"></ul>
       </div>
       <div id="log8">
-        <h2 id="member8">Room8:</h2>
+        <h2>
+          Room8:
+          <div
+            id="member8"
+            style="display: inline-block; _display: inline"
+          ></div>
+        </h2>
         <ul id="sub8"></ul>
       </div>
     </section>
@@ -125,14 +218,16 @@
       const form = document.getElementById("form");
       const mainTextArea = document.getElementById("mainTextArea");
 
-      let name = window.prompt("氏名(漢字)を入力してください");
-      if (name == null || name == "") {
-        window.alert("ページを更新し、正しい名前を入力し直してください");
-        const button = document.getElementById("button");
-        button.disabled = true;
-      } else {
-        socket.emit("login", name);
-      }
+      window.addEventListener("load", function () {
+        let name = window.prompt("ユーザー名を入力してください");
+        if (name == null || name == "") {
+          window.alert("ページを更新し、正しい名前を入力し直してください");
+          const button = document.getElementById("button");
+          button.disabled = true;
+        } else {
+          socket.emit("login", name);
+        }
+      });
 
       form.addEventListener("submit", (e) => {
         e.preventDefault();
@@ -146,33 +241,27 @@
         addlogin(name + " さん" + "がログインしました。");
       });
 
-
       socket.on("chat message", (data) => {
-        addMessage("[" + data.name + " さん" + "] " + data.msg);
+        addMessage("[" + data.name + " さん" + "] " + data.msg, data.postTime);
       });
 
       socket.on("log message", (data) => {
-        addLog(data.msg,data.roomNum);
+        addLog(data.msg, data.roomNum, data.postTime);
       });
 
-      
-      socket.on("addMember", (data) => {
-        addMember(data.name,data.roomNum);
+      socket.on("changeMember", (data) => {
+        changeMember(data);
       });
 
       socket.on("roomNumSet", (roomNum) => {
         addRoomNum(roomNum);
       });
 
-      function addlogin(msg) {
-        let item = document.createElement("li");
-        item.innerText = msg;
-        mainLog.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-      }
+      socket.on("removeMember", (data) => {
+        removeMember(data);
+      });
 
-      function addMember(name,roomNum) {
-        let a = document.getElementById("roomId");
+      function removeMember(data) {
         let member1 = document.getElementById("member1");
         let member2 = document.getElementById("member2");
         let member3 = document.getElementById("member3");
@@ -181,21 +270,61 @@
         let member6 = document.getElementById("member6");
         let member7 = document.getElementById("member7");
         let member8 = document.getElementById("member8");
-        const memberArray = [0,member1,member2,member3,member4,member5,member6,member7,member8];
-        memberArray[roomNum].textContent += name + ","
+        const memberArray = [
+          0,
+          member1,
+          member2,
+          member3,
+          member4,
+          member5,
+          member6,
+          member7,
+          member8,
+        ];
+        memberArray[data.roomNum].textContent.replace(data.name, "");
       }
 
-      function addMessage(msg) {
+      function addlogin(msg) {
         let item = document.createElement("li");
-        let posttime = new Date().toLocaleString();
-        item.innerText = `${msg} \n ${posttime}`;
+        item.innerText = msg;
         mainLog.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
       }
 
-      function addLog(msg,roomNum){
+      function changeMember(data) {
+        let member1 = document.getElementById("member1");
+        let member2 = document.getElementById("member2");
+        let member3 = document.getElementById("member3");
+        let member4 = document.getElementById("member4");
+        let member5 = document.getElementById("member5");
+        let member6 = document.getElementById("member6");
+        let member7 = document.getElementById("member7");
+        let member8 = document.getElementById("member8");
+        const memberArray = [
+          0,
+          member1,
+          member2,
+          member3,
+          member4,
+          member5,
+          member6,
+          member7,
+          member8,
+        ];
+
+        memberArray[data.roomNum].textContent += data.name + ",";
+      }
+
+      function addMessage(msg, postTime) {
         let item = document.createElement("li");
         let posttime = new Date().toLocaleString();
+        item.innerText = `${msg} \n ${postTime}`;
+        mainLog.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+
+      function addLog(msg, roomNum, postTime) {
+        let item = document.createElement("li");
         let sub1 = document.getElementById("sub1");
         let sub2 = document.getElementById("sub2");
         let sub3 = document.getElementById("sub3");
@@ -204,14 +333,14 @@
         let sub6 = document.getElementById("sub6");
         let sub7 = document.getElementById("sub7");
         let sub8 = document.getElementById("sub8");
-        const roomArray = [0,sub1,sub2,sub3,sub4,sub5,sub6,sub7,sub8];
-        item.innerText = `${msg} \n ${posttime}`;
+        const roomArray = [0, sub1, sub2, sub3, sub4, sub5, sub6, sub7, sub8];
+        item.innerText = `${msg} \n ${postTime}`;
         roomArray[roomNum].appendChild(item);
       }
 
       function addRoomNum(Num) {
         let id = document.getElementById("roomId");
-        id.innerText = `Room ${Num}`;
+        id.innerText = `ここはルーム${Num}です`;
       }
 
       function viewChange() {
@@ -222,6 +351,11 @@
             document.getElementById(`log${z}`).style.display = "";
           } else {
             document.getElementById(`log${z}`).style.display = "none";
+          }
+        }
+        if (id == 0) {
+          for (let z = 1; z < 9; z++) {
+            document.getElementById(`log${z}`).style.display = "";
           }
         }
       }
