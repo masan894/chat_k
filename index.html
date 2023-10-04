@@ -67,43 +67,12 @@
       #mainLog > li {
         padding: 0.5rem 1rem;
         font-size: 1.5em;
-        border-radius: 10px;
-        /* 吹き出し本体 */
-        position: relative;
-        background-color: #90d2ec;
-        border: 2px solid #65c6ec;
+        list-style: none;
+        border-bottom: 1px solid #000000;
       }
 
-      /* beforeで枠線の三角を表現 */
-      #mainLog > li::before {
-        content: "";
-        position: absolute;
-        display: block;
-        width: 0;
-        height: 0;
-        left: 20px;
-        top: -15px;
-        border-right: 15px solid transparent;
-        border-bottom: 15px solid #65c6ec;
-        border-left: 15px solid transparent;
-      }
-
-      /* beforeで本体の三角を表現 */
-      #mainLog > li::after {
-        content: "";
-        position: absolute;
-        display: block;
-        width: 0;
-        height: 0;
-        left: 20px;
-        top: -12px;
-        border-right: 15px solid transparent;
-        border-bottom: 15px solid #65c6ec;
-        border-left: 15px solid transparent;
-      }
-
-      #mainLog > li:nth-child(odd) {
-        background: #efefef;
+      #mainLog > li:last-child {
+        border-bottom: 0px;
       }
 
       [id*="sub"] > ul {
@@ -112,6 +81,7 @@
 
       [id*="sub"] > li {
         margin: 5px;
+        font-size: 1.2em;
         list-style: none;
         border-bottom: 1px solid #000000;
       }
@@ -251,8 +221,20 @@
         }
       });
 
-      socket.on("login", (name) => {
-        addlogin(name + " さん" + "がログインしました。");
+      socket.on("login", (data) => {
+        addLogin(
+          data.name + " さん" + "がログインしました。" + "\n" + data.timeText
+        );
+      });
+
+      socket.on("topLog", (topText) => {
+        addLogin(topText);
+      });
+
+      socket.on("logout", (data) => {
+        addLogout(
+          data.name + " さん" + "がログアウトしました。" + "\n" + data.timeText
+        );
       });
 
       socket.on("chat message", (data) => {
@@ -260,7 +242,7 @@
       });
 
       socket.on("log message", (data) => {
-        addLog(data.msg, data.roomNum, data.postTime);
+        addLog(data.msg, data.num, data.postTime);
       });
 
       socket.on("log message2", (data) => {
@@ -302,7 +284,14 @@
         memberArray[data.num].textContent = "";
       }
 
-      function addlogin(msg) {
+      function addLogin(msg) {
+        let item = document.createElement("li");
+        item.innerText = msg;
+        mainLog.appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+
+      function addLogout(msg) {
         let item = document.createElement("li");
         item.innerText = msg;
         mainLog.appendChild(item);
