@@ -105,6 +105,20 @@
       #mainLog > li:nth-child(odd) {
         background: #efefef;
       }
+
+      [id*="sub"] > ul {
+        padding-left: 0;
+      }
+
+      [id*="sub"] > li {
+        margin: 5px;
+        list-style: none;
+        border-bottom: 1px solid #000000;
+      }
+
+      [id*="sub"] > li:last-child {
+        border-bottom: 0px;
+      }
     </style>
   </head>
   <body>
@@ -249,6 +263,10 @@
         addLog(data.msg, data.roomNum, data.postTime);
       });
 
+      socket.on("log message2", (data) => {
+        addLog(data.msg, data.num, data.postTime);
+      });
+
       socket.on("changeMember", (data) => {
         changeMember(data);
       });
@@ -281,7 +299,7 @@
           member7,
           member8,
         ];
-        memberArray[data.roomNum].textContent.replace(data.name, "");
+        memberArray[data.num].textContent = "";
       }
 
       function addlogin(msg) {

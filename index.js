@@ -61,11 +61,11 @@ io.on("connection", (socket) => {
     socket.join(roomNum); //内部の入室処理
     socket.emit("roomNumSet", roomNum); //クライアント自身の画面にroomNumを表示させる
     io.to(roomNum).emit("login", name); //部屋のメンバーに入室を通知
+    const mainPosts = await Post.find({ roomNum: roomNum });
+    mainPosts.forEach((p) => socket.emit("chat message", p));
 
     //以下MongoDBを用いたログ読み込み処理
     try {
-      const mainPosts = await Post.find({ roomNum: roomNum });
-      mainPosts.forEach((p) => socket.emit("chat message", p));
       for (let z = 1; z < 9; z++) {
         const logPosts = await Post.find({ roomNum: z });
         logPosts.forEach((p) => socket.emit("log message", p));
@@ -82,17 +82,23 @@ io.on("connection", (socket) => {
         let time1 = String(month) + "/" + String(date);
         let time2 = new Date().toLocaleTimeString();
         let postTime = time1 + "  " + time2;
-        const p = await Post.create({ name, msg, roomNum, postTime }); // save data to database
-        io.to(roomNum).emit("chat message", { name, msg, roomNum, postTime }); //ルームチャットに送信
-        io.emit("log message", { msg, roomNum, postTime }); //全体チャットに送信
+        const postData = await Name.findOne({ name: name });
+        let num = postData.roomNum;
+        const p = await Post.create({ name, msg, num, postTime }); // save data to database
+        io.to(num).emit("chat message", { name, msg, postTime }); //ルームチャットに送信
+        io.emit("log message2", { msg, num, postTime }); //全体チャットに送信
       } catch (e) {
         console.error(e);
       }
     });
     socket.on("disconnect", async () => {
-      io.emit("removeMember", { name, roomNum });
-      console.log(`${name} disconnected`);
+      const postData = await Name.findOne({ name: name });
+      let num = postData.roomNum;
       await Name.deleteMany({ name: name });
+      io.emit("removeMember", { name, num });
+      console.log(`${name} disconnected`);
+      const logName = await Name.find({ roomNum: num });
+      logName.forEach((p) => io.emit("changeMember", p));
     });
   });
 });
