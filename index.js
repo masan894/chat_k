@@ -25,7 +25,7 @@ const options = {
 
 // 保存するデータの形を定義する（データの種類が複数ある場合はそれぞれ１つずつ定義する）
 const postSchema = new mongoose.Schema(
-  { name: String, msg: String, roomNum: Number, postTime: String },
+  { name: String, msg: String, num: Number, postTime: String },
   options
 );
 // その形式のデータを保存・読み出しするために必要なモデルを作る
@@ -59,15 +59,24 @@ io.on("connection", (socket) => {
     //以下、名前送信時の処理
     io.emit("changeMember", n);
     socket.join(roomNum); //内部の入室処理
+    const topText =
+      "ページを閉じるかページを更新するとログアウトされます。再度名前を入力して入室すると再ログインできます。";
+    socket.emit("topLog", topText);
     socket.emit("roomNumSet", roomNum); //クライアント自身の画面にroomNumを表示させる
-    io.to(roomNum).emit("login", name); //部屋のメンバーに入室を通知
+    let time = new Date();
+    let month = time.getMonth() + 1;
+    let date = time.getDate();
+    let time1 = String(month) + "/" + String(date);
+    let time2 = new Date().toLocaleTimeString();
+    let timeText = time1 + "  " + time2;
+    io.to(roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
+    const mainPosts = await Post.find({ num: roomNum });
+    mainPosts.forEach((p) => socket.emit("chat message", p));
 
     //以下MongoDBを用いたログ読み込み処理
     try {
-      const mainPosts = await Post.find({ roomNum: roomNum });
-      mainPosts.forEach((p) => socket.emit("chat message", p));
       for (let z = 1; z < 9; z++) {
-        const logPosts = await Post.find({ roomNum: z });
+        const logPosts = await Post.find({ num: z });
         logPosts.forEach((p) => socket.emit("log message", p));
       }
     } catch (e) {
@@ -82,17 +91,30 @@ io.on("connection", (socket) => {
         let time1 = String(month) + "/" + String(date);
         let time2 = new Date().toLocaleTimeString();
         let postTime = time1 + "  " + time2;
-        const p = await Post.create({ name, msg, roomNum, postTime }); // save data to database
-        io.to(roomNum).emit("chat message", { name, msg, roomNum, postTime }); //ルームチャットに送信
-        io.emit("log message", { msg, roomNum, postTime }); //全体チャットに送信
+        const postData = await Name.findOne({ name: name });
+        let num = postData.roomNum;
+        const p = await Post.create({ name, msg, num, postTime }); // save data to database
+        io.to(num).emit("chat message", { name, msg, postTime }); //ルームチャットに送信
+        io.emit("log message2", { msg, num, postTime }); //全体チャットに送信
       } catch (e) {
         console.error(e);
       }
     });
     socket.on("disconnect", async () => {
-      io.emit("removeMember", { name, roomNum });
-      console.log(`${name} disconnected`);
+      const postData = await Name.findOne({ name: name });
+      let num = postData.roomNum;
+      let time = new Date();
+      let month = time.getMonth() + 1;
+      let date = time.getDate();
+      let time1 = String(month) + "/" + String(date);
+      let time2 = new Date().toLocaleTimeString();
+      let timeText = time1 + "  " + time2;
+      io.to(num).emit("logout", { name, timeText }); //部屋のメンバーに入室を通知
       await Name.deleteMany({ name: name });
+      io.emit("removeMember", { name, num });
+      console.log(`${name} disconnected`);
+      const logName = await Name.find({ roomNum: num });
+      logName.forEach((p) => io.emit("changeMember", p));
     });
   });
 });
