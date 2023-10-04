@@ -7,11 +7,9 @@ const io = new Server(server);
 const mongoose = require("mongoose");
 const port = process.env.PORT;
 const MONGODB_URL = process.env.MONGODB_URL;
-try {
-  await mongoose.connect(MONGODB_URL, { useNewUrlParser: true });
-} catch (error) {
-  handleError(error);
-} // データベースに接続する
+mongoose
+  .connect(MONGODB_URL, { useNewUrlParser: true })
+  .catch((error) => handleError(error)); // データベースに接続する
 
 // オプション設定
 const options = {
