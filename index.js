@@ -9,7 +9,7 @@ const port = process.env.PORT;
 const MONGODB_URL = process.env.MONGODB_URL;
 mongoose
   .connect(MONGODB_URL, { useNewUrlParser: true })
-  .catch((error) => handleError(error)); // データベースに接続する
+  .catch((error) => console.log(error)); // データベースに接続する
 
 // オプション設定
 const options = {
