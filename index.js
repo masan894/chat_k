@@ -5,6 +5,8 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 const mongoose = require("mongoose");
+const dotenv = require("dotenv").config();
+console.log("\n= = = dotenv is loaded. = = =\n");
 const port = process.env.PORT;
 const MONGODB_URL = process.env.MONGODB_URL;
 mongoose.connect(MONGODB_URL, { useNewUrlParser: true }); // データベースに接続する
