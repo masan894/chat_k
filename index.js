@@ -74,7 +74,7 @@ io.on("connection", (socket) => {
       if (roomNum == 9) {
         roomNum = 1;
       }
-      let n = await Name.create({ name, roomNum, login }); // save data to database
+      let n = await Name.create({ name: name, roomNum: roomNum, state: login }); // save data to database
       socket.join(roomNum); //1回目の入室処理
       io.emit("changeMember", n); //名前送信時の処理
       socket.emit("roomNumSet", roomNum); //クライアント自身の画面にroomNumを表示させる
@@ -107,7 +107,12 @@ io.on("connection", (socket) => {
         let postTime = timeGMT + 32400000;
         const postData = await Name.findOne({ name: name });
         let num = postData.roomNum;
-        const p = await Post.create({ name, msg, num, postTime }); // save data to database
+        const p = await Post.create({
+          name: name,
+          msg: msg,
+          num: num,
+          postTime: postTime,
+        }); // save data to database
         io.to(num).emit("chat message", { name, msg, postTime }); //ルームチャットに送信
         io.emit("log message2", { msg, num, postTime }); //全体チャットに送信
       } catch (e) {
