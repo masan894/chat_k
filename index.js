@@ -69,12 +69,12 @@ io.on("connection", (socket) => {
       const mainPosts = await Post.find({ num: historyName.roomNum });
       mainPosts.forEach((p) => socket.emit("chat message", p));
     } else {
-      let login = 1;
+      const login = 1;
       roomNum += 1;
       if (roomNum == 9) {
         roomNum = 1;
       }
-      let n = await Name.create({ name, roomNum, state }); // save data to database
+      let n = await Name.create({ name, roomNum, login }); // save data to database
       socket.join(roomNum); //1回目の入室処理
       io.emit("changeMember", n); //名前送信時の処理
       socket.emit("roomNumSet", roomNum); //クライアント自身の画面にroomNumを表示させる
