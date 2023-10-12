@@ -62,15 +62,12 @@ io.on("connection", (socket) => {
     io.emit("changeMember", n);
     socket.join(roomNum); //内部の入室処理
     const topText =
-      "ページを閉じるかページを更新するとログアウトされます。再度名前を入力して入室すると再ログインできます。";
+      "ページを閉じるか更新するとログアウトします。再度名前を入力して再ログインしてください。（再ログイン時は同じ名前を用いてください。）";
     socket.emit("topLog", topText);
     socket.emit("roomNumSet", roomNum); //クライアント自身の画面にroomNumを表示させる
     let time = new Date();
-    let month = time.getMonth() + 1;
-    let date = time.getDate();
-    let time1 = String(month) + "/" + String(date);
-    let time2 = new Date().toLocaleTimeString();
-    let timeText = time1 + "  " + time2;
+    let timeGMT = time.getTime();
+    let timeText = timeGMT + 32400000;
     io.to(roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
     const mainPosts = await Post.find({ num: roomNum });
     mainPosts.forEach((p) => socket.emit("chat message", p));
@@ -88,11 +85,8 @@ io.on("connection", (socket) => {
     socket.on("chat message", async (msg) => {
       try {
         let time = new Date();
-        let month = time.getMonth() + 1;
-        let date = time.getDate();
-        let time1 = String(month) + "/" + String(date);
-        let time2 = new Date().toLocaleTimeString();
-        let postTime = time1 + "  " + time2;
+        let timeGMT = time.getTime();
+        let postTime = timeGMT + 32400000;
         const postData = await Name.findOne({ name: name });
         let num = postData.roomNum;
         const p = await Post.create({ name, msg, num, postTime }); // save data to database
@@ -106,17 +100,14 @@ io.on("connection", (socket) => {
       const postData = await Name.findOne({ name: name });
       let num = postData.roomNum;
       let time = new Date();
-      let month = time.getMonth() + 1;
-      let date = time.getDate();
-      let time1 = String(month) + "/" + String(date);
-      let time2 = new Date().toLocaleTimeString();
-      let timeText = time1 + "  " + time2;
-      io.to(num).emit("logout", { name, timeText }); //部屋のメンバーに入室を通知
-      await Name.deleteMany({ name: name });
+      let timeGMT = time.getTime();
+      let timeText = timeGMT + 32400000;
+      io.to(num).emit("logout", { name, timeText }); //部屋のメンバーに退室を通知
+      //await Name.deleteMany({ name: name });
       io.emit("removeMember", { name, num });
       console.log(`${name} disconnected`);
-      const logName = await Name.find({ roomNum: num });
-      logName.forEach((p) => io.emit("changeMember", p));
+      /*const logName = await Name.find({ roomNum: num });
+      logName.forEach((p) => io.emit("changeMember", p));*/
     });
   });
 });
