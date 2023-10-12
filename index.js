@@ -56,6 +56,13 @@ io.on("connection", (socket) => {
     if (historyName) {
       socket.join(historyName.roomNum); //2回目以降の入室処理
       io.emit("changeMember", historyName); //名前送信時の処理
+      socket.emit("roomNumSet", historyName.roomNum); //クライアント自身の画面にroomNumを表示させる
+      let time = new Date();
+      let timeGMT = time.getTime();
+      let timeText = timeGMT + 32400000;
+      io.to(historyName.roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
+      const mainPosts = await Post.find({ num: historyName.roomNum });
+      mainPosts.forEach((p) => socket.emit("chat message", p));
     } else {
       let n = await Name.create({ name, roomNum }); // save data to database
       let roomNum = 0;
@@ -65,18 +72,18 @@ io.on("connection", (socket) => {
       }
       socket.join(roomNum); //1回目の入室処理
       io.emit("changeMember", n); //名前送信時の処理
+      socket.emit("roomNumSet", roomNum); //クライアント自身の画面にroomNumを表示させる
+      let time = new Date();
+      let timeGMT = time.getTime();
+      let timeText = timeGMT + 32400000;
+      io.to(roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
+      const mainPosts = await Post.find({ num: roomNum });
+      mainPosts.forEach((p) => socket.emit("chat message", p));
     }
 
     const topText =
       "ページを閉じるか更新するとログアウトします。再度名前を入力して再ログインしてください。（再ログイン時は同じ名前を用いてください。）";
     socket.emit("topLog", topText);
-    socket.emit("roomNumSet", roomNum); //クライアント自身の画面にroomNumを表示させる
-    let time = new Date();
-    let timeGMT = time.getTime();
-    let timeText = timeGMT + 32400000;
-    io.to(roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
-    const mainPosts = await Post.find({ num: roomNum });
-    mainPosts.forEach((p) => socket.emit("chat message", p));
 
     //以下MongoDBを用いたログ読み込み処理
     try {
