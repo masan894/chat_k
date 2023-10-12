@@ -296,8 +296,7 @@
           member7,
           member8,
         ];
-        let memText = memberArray[data.num].textContent;
-        memText.replace(`${msgdata.name},`, "");
+        memberArray[data.num].textContent = "";
       }
 
       function addLogin(msg) {
