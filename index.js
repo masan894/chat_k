@@ -70,12 +70,12 @@ io.on("connection", (socket) => {
       mainPosts.forEach((p) => socket.emit("chat message", p));
     } else {
       let login = 1;
-      let n = await Name.create({ name, roomNum, login }); // save data to database
       let roomNum = 0;
       roomNum += 1;
       if (roomNum == 9) {
         roomNum = 1;
       }
+      let n = await Name.create({ name, roomNum, login }); // save data to database
       socket.join(roomNum); //1回目の入室処理
       io.emit("changeMember", n); //名前送信時の処理
       socket.emit("roomNumSet", roomNum); //クライアント自身の画面にroomNumを表示させる
