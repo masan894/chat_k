@@ -45,7 +45,6 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 
-let roomNum = 0;
 io.on("connection", (socket) => {
   socket.on("login", async (name) => {
     console.log(`${name} connected`);
@@ -59,6 +58,7 @@ io.on("connection", (socket) => {
       io.emit("changeMember", historyName); //名前送信時の処理
     } else {
       let n = await Name.create({ name, roomNum }); // save data to database
+      let roomNum = 0;
       roomNum += 1;
       if (roomNum == 9) {
         roomNum = 1;
