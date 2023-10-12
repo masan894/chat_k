@@ -49,12 +49,12 @@ let roomNum = 0;
 io.on("connection", (socket) => {
   socket.on("login", async (name) => {
     console.log(`${name} connected`);
-    const historyName = await Name.find({ name: name });
+    const historyName = await Name.findOne({ name: name });
     for (let z = 1; z < 9; z++) {
-      const logName = await Name.find({ roomNum: z });
+      const logName = await Name.find({ roomNum: z, name: { $ne: name } });
       logName.forEach((p) => socket.emit("changeMember", p));
     }
-    if (historyName.name) {
+    if (historyName) {
       socket.join(historyName.roomNum); //2回目以降の入室処理
       io.emit("changeMember", historyName); //名前送信時の処理
     } else {
@@ -103,6 +103,7 @@ io.on("connection", (socket) => {
       }
     });
     socket.on("disconnect", async () => {
+      console.log(`${name} disconnected`);
       const postData = await Name.findOne({ name: name });
       let num = postData.roomNum;
       let time = new Date();
@@ -111,7 +112,6 @@ io.on("connection", (socket) => {
       io.to(num).emit("logout", { name, timeText }); //部屋のメンバーに退室を通知
       //await Name.deleteMany({ name: name });
       io.emit("removeMember", { name, num });
-      console.log(`${name} disconnected`);
       const logName = await Name.find({ roomNum: num, name: { $ne: name } });
       logName.forEach((p) => io.emit("changeMember", p));
     });
