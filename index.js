@@ -44,7 +44,7 @@ const Name = mongoose.model("Name", nameSchema);
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
-
+let roomNum = 0;
 io.on("connection", (socket) => {
   socket.on("login", async (name) => {
     console.log(`${name} connected`);
@@ -70,7 +70,6 @@ io.on("connection", (socket) => {
       mainPosts.forEach((p) => socket.emit("chat message", p));
     } else {
       let login = 1;
-      let roomNum = 0;
       roomNum += 1;
       if (roomNum == 9) {
         roomNum = 1;
