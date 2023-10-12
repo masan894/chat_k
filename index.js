@@ -35,7 +35,7 @@ const Post = mongoose.model("Post", postSchema);
 
 // 保存するデータの形を定義する（データの種類が複数ある場合はそれぞれ１つずつ定義する）
 const nameSchema = new mongoose.Schema(
-  { name: String, roomNum: Number },
+  { name: String, roomNum: Number, login: Number },
   options
 );
 // その形式のデータを保存・読み出しするために必要なモデルを作る
@@ -50,12 +50,17 @@ io.on("connection", (socket) => {
     console.log(`${name} connected`);
     const historyName = await Name.findOne({ name: name });
     for (let z = 1; z < 9; z++) {
-      const logName = await Name.find({ roomNum: z, name: { $ne: name } });
+      const logName = await Name.find({
+        roomNum: z,
+        name: { $ne: name },
+        login: 1,
+      });
       logName.forEach((p) => socket.emit("changeMember", p));
     }
     if (historyName) {
       socket.join(historyName.roomNum); //2回目以降の入室処理
       io.emit("changeMember", historyName); //名前送信時の処理
+      historyName.login = 1;
       socket.emit("roomNumSet", historyName.roomNum); //クライアント自身の画面にroomNumを表示させる
       let time = new Date();
       let timeGMT = time.getTime();
@@ -64,7 +69,8 @@ io.on("connection", (socket) => {
       const mainPosts = await Post.find({ num: historyName.roomNum });
       mainPosts.forEach((p) => socket.emit("chat message", p));
     } else {
-      let n = await Name.create({ name, roomNum }); // save data to database
+      let login = 1;
+      let n = await Name.create({ name, roomNum, login }); // save data to database
       let roomNum = 0;
       roomNum += 1;
       if (roomNum == 9) {
@@ -112,6 +118,7 @@ io.on("connection", (socket) => {
     socket.on("disconnect", async () => {
       console.log(`${name} disconnected`);
       const postData = await Name.findOne({ name: name });
+      postData.login = 0;
       let num = postData.roomNum;
       let time = new Date();
       let timeGMT = time.getTime();
