@@ -121,8 +121,12 @@ io.on("connection", (socket) => {
     });
     socket.on("disconnect", async () => {
       console.log(`${name} disconnected`);
+      await Name.updateOne(
+        { name: name },
+        { $set: { state: 0 } },
+        { runValidator: true }
+      );
       let postData = await Name.findOne({ name: name });
-      postData.state = 0;
       let num = postData.roomNum;
       let time = new Date();
       let timeGMT = time.getTime();
