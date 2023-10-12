@@ -222,8 +222,11 @@
       });
 
       socket.on("login", (data) => {
+        let hour = Math.floor(data.timeText / 1000 / 60 / 60) % 24;
+        let minute = Math.floor(data.timeText / 1000 / 60) % 60;
+        let localTime = String(hour) + ":" + String(minute);
         addLogin(
-          data.name + " さん" + "がログインしました。" + "\n" + data.timeText
+          data.name + " さん" + "がログインしました。" + "\n" + localTime
         );
       });
 
@@ -232,21 +235,33 @@
       });
 
       socket.on("logout", (data) => {
+        let hour = Math.floor(data.timeText / 1000 / 60 / 60) % 24;
+        let minute = Math.floor(data.timeText / 1000 / 60) % 60;
+        let localTime = String(hour) + ":" + String(minute);
         addLogout(
-          data.name + " さん" + "がログアウトしました。" + "\n" + data.timeText
+          data.name + " さん" + "がログアウトしました。" + "\n" + localTime
         );
       });
 
       socket.on("chat message", (data) => {
-        addMessage("[" + data.name + " さん" + "] " + data.msg, data.postTime);
+        let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
+        let minute = Math.floor(data.postTime / 1000 / 60) % 60;
+        let localTime = String(hour) + ":" + String(minute);
+        addMessage("[" + data.name + "] " + data.msg, localTime);
       });
 
       socket.on("log message", (data) => {
-        addLog(data.msg, data.num, data.postTime);
+        let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
+        let minute = Math.floor(data.postTime / 1000 / 60) % 60;
+        let localTime = String(hour) + ":" + String(minute);
+        addLog(data.msg, data.num, localTime);
       });
 
       socket.on("log message2", (data) => {
-        addLog(data.msg, data.num, data.postTime);
+        let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
+        let minute = Math.floor(data.postTime / 1000 / 60) % 60;
+        let localTime = String(hour) + ":" + String(minute);
+        addLog(data.msg, data.num, localTime);
       });
 
       socket.on("changeMember", (data) => {
@@ -281,7 +296,8 @@
           member7,
           member8,
         ];
-        memberArray[data.num].textContent = "";
+        let memText = memberArray[data.num].textContent;
+        memText.replace(`${msgdata.name},`, "");
       }
 
       function addLogin(msg) {
