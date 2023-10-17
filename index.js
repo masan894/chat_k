@@ -59,12 +59,6 @@ io.on("connection", (socket) => {
     }
     if (historyName) {
       socket.join(historyName.roomNum); //2回目以降の入室処理
-      io.emit("changeMember", historyName); //名前送信時の処理
-      await Name.updateOne(
-        { name: name },
-        { $set: { state: 1 } },
-        { runValidator: true }
-      );
       socket.emit("roomNumSet", historyName.roomNum); //クライアント自身の画面にroomNumを表示させる
       let time = new Date();
       let timeGMT = time.getTime();
@@ -72,6 +66,15 @@ io.on("connection", (socket) => {
       io.to(historyName.roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
       const mainPosts = await Post.find({ num: historyName.roomNum });
       mainPosts.forEach((p) => socket.emit("chat message", p));
+      if (historyName.state == 0) {
+        //既にログインされている場合は名前を追加しないための分岐
+        await Name.updateOne(
+          { name: name },
+          { $set: { state: 1 } },
+          { runValidator: true }
+        );
+        io.emit("changeMember", historyName); //名前送信時の処理
+      }
     } else {
       const login = 1;
       roomNum += 1;
@@ -123,6 +126,7 @@ io.on("connection", (socket) => {
         console.error(e);
       }
     });
+    //切断時の処理
     socket.on("disconnect", async () => {
       console.log(`${name} disconnected`);
       await Name.updateOne(
