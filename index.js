@@ -55,12 +55,16 @@ io.on("connection", (socket) => {
         name: { $ne: name },
         state: 1,
       });
-      logName.forEach((p) => socket.emit("changeMember", p));
+      logName.forEach((p) => socket.emit("changeMember", p)); //クライアントの画面にメンバーを表示
     }
     if (historyName) {
       socket.join(historyName.roomNum); //2回目以降の入室処理
       io.emit("changeMember", historyName); //名前送信時の処理
-      historyName.state = 1;
+      await Name.updateOne(
+        { name: name },
+        { $set: { state: 1 } },
+        { runValidator: true }
+      );
       socket.emit("roomNumSet", historyName.roomNum); //クライアント自身の画面にroomNumを表示させる
       let time = new Date();
       let timeGMT = time.getTime();
