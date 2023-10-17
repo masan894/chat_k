@@ -126,13 +126,6 @@ io.on("connection", (socket) => {
         console.error(e);
       }
     });
-    /*最新ログ(全体)の表示処理
-    socket.on("latest log", async (z) => {
-      try {
-      } catch (e) {
-        console.error(e);
-      }
-    });*/
     //切断時の処理
     socket.on("disconnect", async () => {
       console.log(`${name} disconnected`);

@@ -381,9 +381,14 @@
           }
         }
         if (id == 0) {
-          for (let z = 1; z < 9; z++) {
-            document.getElementById(`log${z}`).style.display = "";
-          }
+          let nthLog = document.querySelectorAll(
+            "#sub1, #sub2, #sub3, #sub4, #sub5, #sub6, #sub7, #sub8"
+          );
+          nthLog.style.display = "none";
+          let latestLog = document.querySelectorAll(
+            "#sub1 ul:nth-last-child(-n + 3), #sub2 ul:nth-last-child(-n + 3), #sub3 ul:nth-last-child(-n + 3), #sub4 ul:nth-last-child(-n + 3), #sub5 ul:nth-last-child(-n + 3), #sub6 ul:nth-last-child(-n + 3), #sub7 ul:nth-last-child(-n + 3), #sub8 ul:nth-last-child(-n + 3)"
+          );
+          latestLog.style.display = "";
         }
       }
     </script>
