@@ -381,14 +381,18 @@
           }
         }
         if (id == 0) {
-          /*let nthLog = document.querySelectorAll(
-            "#sub1, #sub2, #sub3, #sub4, #sub5, #sub6, #sub7, #sub8"
-          );
-          nthLog.style.display = "none";*/
-          let latestLog = document.querySelectorAll(
-            "#sub1 ul:nth-last-child(-n + 3), #sub2 ul:nth-last-child(-n + 3), #sub3 ul:nth-last-child(-n + 3), #sub4 ul:nth-last-child(-n + 3), #sub5 ul:nth-last-child(-n + 3), #sub6 ul:nth-last-child(-n + 3), #sub7 ul:nth-last-child(-n + 3), #sub8 ul:nth-last-child(-n + 3)"
-          );
-          latestLog.style.display = "";
+          for (let z = 1; z < 9; z++) {
+            let sub = document.getElementById(`sub${z}`);
+            sub.style.display = "none";
+            // 子要素のリストを取得
+            let subChild = sub.children;
+            // 子要素の数を取得
+            let numChildren = subChild.length;
+            // 最後の3つの子要素を取得してそれぞれを表示
+            for (var i = numChildren - 1; i >= numChildren - 3; i--) {
+              subChild[i].style.display = "";
+            }
+          }
         }
       }
     </script>
