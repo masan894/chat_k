@@ -57,15 +57,32 @@ io.on("connection", (socket) => {
       });
       logName.forEach((p) => socket.emit("changeMember", p)); //クライアントの画面にメンバーを表示
     }
+
+    const topText =
+      "ページを閉じるか更新するとログアウトします。初回と同じ名前を用いて再ログインしてください。";
+    socket.emit("topLog", topText); //トップ表示を上に固定
+
+    //MongoDBを用いたログ読み込み処理
+    try {
+      for (let z = 1; z < 9; z++) {
+        const logPosts = await Post.find({ num: z });
+        logPosts.forEach((p) => socket.emit("log message", p));
+        socket.emit("latest log fetch");
+      }
+    } catch (e) {
+      console.error(e);
+    }
+
+    //ログイン処理
     if (historyName) {
       socket.join(historyName.roomNum); //2回目以降の入室処理
       socket.emit("roomNumSet", historyName.roomNum); //クライアント自身の画面にroomNumを表示させる
       let time = new Date();
       let timeGMT = time.getTime();
       let timeText = timeGMT + 32400000;
-      io.to(historyName.roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
       const mainPosts = await Post.find({ num: historyName.roomNum });
       mainPosts.forEach((p) => socket.emit("chat message", p));
+      io.to(historyName.roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
       if (historyName.state == 0) {
         //既にログインされている場合は名前を追加しないための分岐
         await Name.updateOne(
@@ -74,7 +91,9 @@ io.on("connection", (socket) => {
           { runValidator: true }
         );
         io.emit("changeMember", historyName); //名前送信時の処理
-      }
+      } /*else if (historyName.state == 1) {
+        socket.emit("name duplication"); //過去のログイン履歴があり、且つ既にログインされている場合
+      }*/
     } else {
       const login = 1;
       roomNum += 1;
@@ -88,25 +107,11 @@ io.on("connection", (socket) => {
       let time = new Date();
       let timeGMT = time.getTime();
       let timeText = timeGMT + 32400000;
-      io.to(roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
       const mainPosts = await Post.find({ num: roomNum });
       mainPosts.forEach((p) => socket.emit("chat message", p));
+      io.to(roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
     }
 
-    const topText =
-      "ページを閉じるか更新するとログアウトします。初回と同じ名前を用いて再ログインしてください。";
-    socket.emit("topLog", topText);
-
-    //以下MongoDBを用いたログ読み込み処理
-    try {
-      for (let z = 1; z < 9; z++) {
-        const logPosts = await Post.find({ num: z });
-        logPosts.forEach((p) => socket.emit("log message", p));
-        socket.emit("latest log fetch");
-      }
-    } catch (e) {
-      console.error(e);
-    }
     //以下、チャット送信時の処理
     socket.on("chat message", async (msg) => {
       try {
@@ -142,7 +147,6 @@ io.on("connection", (socket) => {
       let timeGMT = time.getTime();
       let timeText = timeGMT + 32400000;
       io.to(num).emit("logout", { name, timeText }); //部屋のメンバーに退室を通知
-      //await Name.deleteMany({ name: name });
       io.emit("removeMember", { name, num });
       const logName = await Name.find({ roomNum: num, name: { $ne: name } });
       logName.forEach((p) => io.emit("changeMember", p));
