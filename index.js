@@ -102,6 +102,7 @@ io.on("connection", (socket) => {
       for (let z = 1; z < 9; z++) {
         const logPosts = await Post.find({ num: z });
         logPosts.forEach((p) => socket.emit("log message", p));
+        socket.emit("latest log fetch");
       }
     } catch (e) {
       console.error(e);
@@ -122,6 +123,7 @@ io.on("connection", (socket) => {
         }); // save data to database
         io.to(num).emit("chat message", { name, msg, postTime }); //ルームチャットに送信
         io.emit("log message2", { msg, num, postTime }); //全体チャットに送信
+        io.emit("latest log fetch");
       } catch (e) {
         console.error(e);
       }

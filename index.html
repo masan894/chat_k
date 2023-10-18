@@ -262,6 +262,10 @@
         addLog(data.msg, data.num, localTime);
       });
 
+      socket.on("latest log fetch", () => {
+        latestLog();
+      });
+
       socket.on("log message2", (data) => {
         let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
         let minute = Math.floor(data.postTime / 1000 / 60) % 60;
@@ -376,6 +380,13 @@
           for (let z = 1; z < 9; z++) {
             if (z == selected) {
               document.getElementById(`log${z}`).style.display = "";
+              document.getElementById(`sub${z}`).style.display = "";
+              let child = Array.from(
+                document.getElementById(`sub${z}`).children
+              );
+              for (let a = 0; a < child.length; a++) {
+                child[a].style.display = "";
+              }
             } else {
               document.getElementById(`log${z}`).style.display = "none";
             }
@@ -388,6 +399,18 @@
               for (let a = 0; a <= child.length - 4; a++) {
                 child[a].style.display = "none";
               }
+            }
+          }
+        }
+      }
+
+      function latestLog() {
+        for (let z = 1; z < 9; z++) {
+          document.getElementById(`log${z}`).style.display = "";
+          let child = Array.from(document.getElementById(`sub${z}`).children);
+          if (child.length > 4) {
+            for (let a = 0; a <= child.length - 4; a++) {
+              child[a].style.display = "none";
             }
           }
         }
