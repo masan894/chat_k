@@ -45,6 +45,7 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
 let roomNum = 0;
+let currentMember = []; //成り済まし防止配列
 io.on("connection", (socket) => {
   socket.on("login", async (name) => {
     console.log(`${name} connected`);
@@ -91,9 +92,9 @@ io.on("connection", (socket) => {
           { runValidator: true }
         );
         io.emit("changeMember", historyName); //名前送信時の処理
-      } /*else if (historyName.state == 1) {
-        socket.emit("name duplication"); //過去のログイン履歴があり、且つ既にログインされている場合
-      }*/
+      } else if (historyName.state == 1) {
+        socket.emit("changeMember", historyName); //名前送信時の処理
+      }
     } else {
       const login = 1;
       roomNum += 1;
