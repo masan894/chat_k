@@ -15,7 +15,7 @@
         float: left;
         flex: 1;
         overflow: hidden;
-        max-height: 100vh;
+        max-height: 88%;
         background: #cdc1b2;
       }
 
@@ -28,8 +28,8 @@
         left: 50%;
         flex: 1;
         overflow: auto;
-        max-height: 100vh;
-        max-width: 100vh;
+        height: 100vh;
+        width: 100vh;
         background: #a3d1bf;
       }
 
@@ -40,8 +40,9 @@
 
       #form {
         height: 12%;
+        width: 50%;
         background: rgba(0, 0, 0, 0.15);
-        /*position: fixed;*/
+        position: fixed;
         bottom: 0;
         display: flex;
       }
@@ -91,7 +92,7 @@
       }
     </style>
   </head>
-  <body>
+  <body id="body">
     <section id="mainChat">
       <h1 id="roomId">k-chat</h1>
       <ul id="mainLog"></ul>
@@ -104,7 +105,7 @@
     <section id="subChat">
       <h2>他のグループのチャットを見に行こう</h2>
       <select id="roomSelect" onchange="viewChange();">
-        <option value="0">全ルームログ</option>
+        <option value="0" selected>全ルームログ一覧(最新3件のみ)</option>
         <option value="1">ルーム1</option>
         <option value="2">ルーム2</option>
         <option value="3">ルーム3</option>
@@ -114,11 +115,6 @@
         <option value="7">ルーム7</option>
         <option value="8">ルーム8</option>
       </select>
-      <!--全体ログ改修予定？
-      <div id="logAll">
-        <ul id="subAll"></ul>
-      </div>
-      -->
       <div id="log1">
         <h2>
           Room1:
@@ -127,7 +123,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub1"></ul>
+        <ul id="sub1" class="sub"></ul>
       </div>
       <div id="log2">
         <h2>
@@ -137,7 +133,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub2"></ul>
+        <ul id="sub2" class="sub"></ul>
       </div>
       <div id="log3">
         <h2>
@@ -147,7 +143,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub3"></ul>
+        <ul id="sub3" class="sub"></ul>
       </div>
       <div id="log4">
         <h2>
@@ -157,7 +153,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub4"></ul>
+        <ul id="sub4" class="sub"></ul>
       </div>
       <div id="log5">
         <h2>
@@ -167,7 +163,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub5"></ul>
+        <ul id="sub5" class="sub"></ul>
       </div>
       <div id="log6">
         <h2>
@@ -177,7 +173,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub6"></ul>
+        <ul id="sub6" class="sub"></ul>
       </div>
       <div id="log7">
         <h2>
@@ -187,7 +183,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub7"></ul>
+        <ul id="sub7" class="sub"></ul>
       </div>
       <div id="log8">
         <h2>
@@ -197,7 +193,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub8"></ul>
+        <ul id="sub8" class="sub"></ul>
       </div>
     </section>
     <script src="/socket.io/socket.io.js"></script>
@@ -208,7 +204,7 @@
       const mainTextArea = document.getElementById("mainTextArea");
 
       window.addEventListener("load", function () {
-        let name = window.prompt("ユーザー名を入力してください");
+        let name = window.prompt("氏名を入力してください");
         if (name == null || name == "") {
           window.alert("ページを更新し、名前を入力し直してください");
           const button = document.getElementById("button");
@@ -229,10 +225,21 @@
       socket.on("login", (data) => {
         let hour = Math.floor(data.timeText / 1000 / 60 / 60) % 24;
         let minute = Math.floor(data.timeText / 1000 / 60) % 60;
+        if (minute < 10) {
+          minute = "0" + String(minute);
+        }
         let localTime = String(hour) + ":" + String(minute);
         addLogin(
           data.name + " さん" + "がログインしました。" + "\n" + localTime
         );
+      });
+
+      socket.on("forced logout", () => {
+        window.alert(
+          "氏名が現在ログインしている他のユーザと重複しています。ページを更新し、氏名を入力し直してください"
+        );
+        const body = document.getElementById("body");
+        body.style.display = "none";
       });
 
       socket.on("topLog", (topText) => {
@@ -242,6 +249,9 @@
       socket.on("logout", (data) => {
         let hour = Math.floor(data.timeText / 1000 / 60 / 60) % 24;
         let minute = Math.floor(data.timeText / 1000 / 60) % 60;
+        if (minute < 10) {
+          minute = "0" + String(minute);
+        }
         let localTime = String(hour) + ":" + String(minute);
         addLogout(
           data.name + " さん" + "がログアウトしました。" + "\n" + localTime
@@ -251,6 +261,9 @@
       socket.on("chat message", (data) => {
         let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
         let minute = Math.floor(data.postTime / 1000 / 60) % 60;
+        if (minute < 10) {
+          minute = "0" + String(minute);
+        }
         let localTime = String(hour) + ":" + String(minute);
         addMessage("[" + data.name + "] " + data.msg, localTime);
       });
@@ -258,13 +271,23 @@
       socket.on("log message", (data) => {
         let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
         let minute = Math.floor(data.postTime / 1000 / 60) % 60;
+        if (minute < 10) {
+          minute = "0" + String(minute);
+        }
         let localTime = String(hour) + ":" + String(minute);
         addLog(data.msg, data.num, localTime);
+      });
+
+      socket.on("latest log fetch", () => {
+        latestLog();
       });
 
       socket.on("log message2", (data) => {
         let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
         let minute = Math.floor(data.postTime / 1000 / 60) % 60;
+        if (minute < 10) {
+          minute = "0" + String(minute);
+        }
         let localTime = String(hour) + ":" + String(minute);
         addLog(data.msg, data.num, localTime);
       });
@@ -280,6 +303,17 @@
       socket.on("removeMember", (data) => {
         removeMember(data);
       });
+
+      /*socket.on("name duplication", () => {
+        window.alert(
+          "名前が別のユーザに使用されています。別の名前でログインしてみてください。"
+        );
+        const button = document.getElementById("button");
+        button.disabled = true;
+        setTimeout(function () {
+          location.reload();
+        }, 2000);
+      });*/
 
       function removeMember(data) {
         let member1 = document.getElementById("member1");
@@ -308,16 +342,23 @@
         let item = document.createElement("li");
         item.innerText = msg;
         mainLog.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
       }
 
       function addLogout(msg) {
         let item = document.createElement("li");
         item.innerText = msg;
         mainLog.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
       }
 
+      function addMessage(msg, postTime) {
+        let item = document.createElement("li");
+        let posttime = new Date().toLocaleString();
+        item.innerText = `${msg} \n ${postTime}`;
+        mainLog.appendChild(item);
+        let mainChat = document.getElementById("mainChat");
+        let bottom = mainChat.scrollHeight - mainChat.clientHeight;
+        mainChat.scrollTop = bottom;
+      }
       function changeMember(data) {
         let member1 = document.getElementById("member1");
         let member2 = document.getElementById("member2");
@@ -338,16 +379,7 @@
           member7,
           member8,
         ];
-
         memberArray[data.roomNum].textContent += data.name + ",";
-      }
-
-      function addMessage(msg, postTime) {
-        let item = document.createElement("li");
-        let posttime = new Date().toLocaleString();
-        item.innerText = `${msg} \n ${postTime}`;
-        mainLog.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
       }
 
       function addLog(msg, roomNum, postTime) {
@@ -371,26 +403,42 @@
       }
 
       function viewChange() {
-        let id = document.getElementById("roomSelect").selectedIndex;
-        console.log(id);
-        for (let z = 1; z < 9; z++) {
-          if (z == id) {
+        let selected = document.getElementById("roomSelect").selectedIndex;
+        if (selected > 0) {
+          for (let z = 1; z < 9; z++) {
+            if (z == selected) {
+              document.getElementById(`log${z}`).style.display = "";
+              document.getElementById(`sub${z}`).style.display = "";
+              let child = Array.from(
+                document.getElementById(`sub${z}`).children
+              );
+              for (let a = 0; a < child.length; a++) {
+                child[a].style.display = "";
+              }
+            } else {
+              document.getElementById(`log${z}`).style.display = "none";
+            }
+          }
+        } else if (selected == 0) {
+          for (let z = 1; z < 9; z++) {
             document.getElementById(`log${z}`).style.display = "";
-          } else {
-            document.getElementById(`log${z}`).style.display = "none";
+            let child = Array.from(document.getElementById(`sub${z}`).children);
+            if (child.length > 3) {
+              for (let a = 0; a <= child.length - 4; a++) {
+                child[a].style.display = "none";
+              }
+            }
           }
         }
-        if (id == 0) {
-          for (let z = 1; z < 9; z++) {
-            let sub = document.getElementById(`sub${z}`);
-            sub.style.display = "none";
-            // 子要素のリストを取得
-            let subChild = sub.children;
-            // 子要素の数を取得
-            let numChildren = subChild.length;
-            // 最後の3つの子要素を取得してそれぞれを表示
-            for (var i = numChildren - 1; i >= numChildren - 3; i--) {
-              subChild[i].style.display = "";
+      }
+
+      function latestLog() {
+        for (let z = 1; z < 9; z++) {
+          document.getElementById(`log${z}`).style.display = "";
+          let child = Array.from(document.getElementById(`sub${z}`).children);
+          if (child.length > 3) {
+            for (let a = 0; a <= child.length - 4; a++) {
+              child[a].style.display = "none";
             }
           }
         }
