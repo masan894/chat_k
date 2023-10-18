@@ -92,7 +92,7 @@
       }
     </style>
   </head>
-  <body>
+  <body id="body">
     <section id="mainChat">
       <h1 id="roomId">k-chat</h1>
       <ul id="mainLog"></ul>
@@ -232,6 +232,14 @@
         addLogin(
           data.name + " さん" + "がログインしました。" + "\n" + localTime
         );
+      });
+
+      socket.on("forced logout", () => {
+        window.alert(
+          "氏名が現在ログインしている他のユーザと重複しています。ページを更新し、氏名を入力し直してください"
+        );
+        const body = document.getElementById("body");
+        body.style.display = "none";
       });
 
       socket.on("topLog", (topText) => {
