@@ -104,7 +104,7 @@
     <section id="subChat">
       <h2>他のグループのチャットを見に行こう</h2>
       <select id="roomSelect" onchange="viewChange();">
-        <option value="0">全ルームログ</option>
+        <option value="0" selected>全ルームログ</option>
         <option value="1">ルーム1</option>
         <option value="2">ルーム2</option>
         <option value="3">ルーム3</option>
@@ -127,7 +127,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub1"></ul>
+        <ul id="sub1" class="sub"></ul>
       </div>
       <div id="log2">
         <h2>
@@ -137,7 +137,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub2"></ul>
+        <ul id="sub2" class="sub"></ul>
       </div>
       <div id="log3">
         <h2>
@@ -147,7 +147,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub3"></ul>
+        <ul id="sub3" class="sub"></ul>
       </div>
       <div id="log4">
         <h2>
@@ -157,7 +157,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub4"></ul>
+        <ul id="sub4" class="sub"></ul>
       </div>
       <div id="log5">
         <h2>
@@ -167,7 +167,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub5"></ul>
+        <ul id="sub5" class="sub"></ul>
       </div>
       <div id="log6">
         <h2>
@@ -177,7 +177,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub6"></ul>
+        <ul id="sub6" class="sub"></ul>
       </div>
       <div id="log7">
         <h2>
@@ -187,7 +187,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub7"></ul>
+        <ul id="sub7" class="sub"></ul>
       </div>
       <div id="log8">
         <h2>
@@ -197,7 +197,7 @@
             style="display: inline-block; _display: inline"
           ></div>
         </h2>
-        <ul id="sub8"></ul>
+        <ul id="sub8" class="sub"></ul>
       </div>
     </section>
     <script src="/socket.io/socket.io.js"></script>
@@ -371,26 +371,23 @@
       }
 
       function viewChange() {
-        let id = document.getElementById("roomSelect").selectedIndex;
-        console.log(id);
-        for (let z = 1; z < 9; z++) {
-          if (z == id) {
-            document.getElementById(`log${z}`).style.display = "";
-          } else {
-            document.getElementById(`log${z}`).style.display = "none";
-          }
-        }
-        if (id == 0) {
+        let selected = document.getElementById("roomSelect").selectedIndex;
+        if (selected > 0) {
           for (let z = 1; z < 9; z++) {
-            let sub = document.getElementById(`sub${z}`);
-            sub.style.display = "none";
-            // 子要素のリストを取得
-            let subChild = sub.children;
-            // 子要素の数を取得
-            let numChildren = subChild.length;
-            // 最後の3つの子要素を取得してそれぞれを表示
-            for (var i = numChildren - 1; i >= numChildren - 3; i--) {
-              subChild[i].style.display = "";
+            if (z == selected) {
+              document.getElementById(`log${z}`).style.display = "";
+            } else {
+              document.getElementById(`log${z}`).style.display = "none";
+            }
+          }
+        } else if (selected == 0) {
+          for (let z = 1; z < 9; z++) {
+            document.getElementById(`log${z}`).style.display = "";
+            let child = Array.from(document.getElementById(`sub${z}`).children);
+            if (child.length > 4) {
+              for (let a = 0; a <= child.length - 4; a++) {
+                child[a].style.display = "none";
+              }
             }
           }
         }
