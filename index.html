@@ -235,21 +235,12 @@
       });
 
       socket.on("forced logout", () => {
-        window.alert(
-          "氏名が現在ログインしている他のユーザと重複しています。ページを更新し、氏名を入力し直してください"
-        );
+        window.alert("氏名が現在ログインしている他のユーザと重複しています");
         const body = document.getElementById("body");
         body.style.display = "none";
-        // reloadの基本的な使い方
-        function doReload() {
-          // reloadメソッドによりページをリロード
-          window.location.reload();
-        }
-
-        window.addEventListener("load", function () {
-          // ページ表示完了した5秒後にリロード
-          setTimeout(doReload, 1000);
-        });
+        let item = document.createElement("div");
+        item.innerText = "ページを更新し、氏名を入力し直してください";
+        body.append(item);
       });
 
       socket.on("topLog", (topText) => {
