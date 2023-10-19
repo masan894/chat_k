@@ -236,11 +236,13 @@
 
       socket.on("forced logout", () => {
         window.alert("氏名が現在ログインしている他のユーザと重複しています");
-        const body = document.getElementById("body");
-        body.style.display = "none";
-        let item = document.createElement("div");
+        const main = document.getElementById("mainChat");
+        const sub = document.getElementById("subChat");
+        main.style.display = "none";
+        sub.style.display = "none";
+        let item = document.createElement("h2");
         item.innerText = "ページを更新し、氏名を入力し直してください";
-        body.append(item);
+        body.appendChild(item);
       });
 
       socket.on("topLog", (topText) => {
@@ -304,17 +306,6 @@
       socket.on("removeMember", (data) => {
         removeMember(data);
       });
-
-      /*socket.on("name duplication", () => {
-        window.alert(
-          "名前が別のユーザに使用されています。別の名前でログインしてみてください。"
-        );
-        const button = document.getElementById("button");
-        button.disabled = true;
-        setTimeout(function () {
-          location.reload();
-        }, 2000);
-      });*/
 
       function removeMember(data) {
         let member1 = document.getElementById("member1");
