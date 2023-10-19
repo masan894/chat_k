@@ -47,7 +47,6 @@ app.get("/", (req, res) => {
 let roomNum = 0; //部屋番号の初期化
 io.on("connection", (socket) => {
   socket.on("login", async (name) => {
-    console.log(`${name} connected`);
     const historyName = await Name.findOne({ name: name });
     for (let z = 1; z < 9; z++) {
       const logName = await Name.find({
@@ -91,6 +90,7 @@ io.on("connection", (socket) => {
           { runValidator: true }
         );
         io.emit("changeMember", historyName); //名前送信時の処理
+        console.log(`${name} connected`);
       } else if (historyName.state == 1) {
         await Name.updateOne(
           { name: name },
@@ -115,6 +115,7 @@ io.on("connection", (socket) => {
       const mainPosts = await Post.find({ num: roomNum });
       mainPosts.forEach((p) => socket.emit("chat message", p));
       io.to(roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
+      console.log(`${name} connected`);
     }
 
     //以下、チャット送信時の処理
@@ -140,7 +141,6 @@ io.on("connection", (socket) => {
     });
     //切断時の処理
     socket.on("disconnect", async () => {
-      console.log(`${name} disconnected`);
       await Name.updateOne(
         { name: name },
         { $inc: { state: -1 } },
@@ -156,6 +156,7 @@ io.on("connection", (socket) => {
         io.emit("removeMember", { name, num });
         const logName = await Name.find({ roomNum: num, name: { $ne: name } });
         logName.forEach((p) => io.emit("changeMember", p));
+        console.log(`${name} disconnected`);
       }
     });
   });
