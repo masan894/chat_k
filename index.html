@@ -235,13 +235,13 @@
       });
 
       socket.on("forced logout", () => {
-        window.alert("氏名が現在ログインしている他のユーザと重複しています");
         const main = document.getElementById("mainChat");
         const sub = document.getElementById("subChat");
         main.style.display = "none";
         sub.style.display = "none";
         let item = document.createElement("h2");
-        item.innerText = "ページを更新し、氏名を入力し直してください";
+        item.innerText =
+          "氏名が現在ログインしている他のユーザと重複しています。\nページを更新し、氏名を入力し直してください";
         body.appendChild(item);
       });
 
