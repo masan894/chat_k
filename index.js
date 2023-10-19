@@ -153,10 +153,10 @@ io.on("connection", (socket) => {
       let timeText = timeGMT + 32400000;
       if (postData.state == 0) {
         io.to(num).emit("logout", { name, timeText }); //部屋のメンバーに退室を通知
+        io.emit("removeMember", { name, num });
+        const logName = await Name.find({ roomNum: num, name: { $ne: name } });
+        logName.forEach((p) => io.emit("changeMember", p));
       }
-      io.emit("removeMember", { name, num });
-      const logName = await Name.find({ roomNum: num, name: { $ne: name } });
-      logName.forEach((p) => io.emit("changeMember", p));
     });
   });
 });
