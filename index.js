@@ -126,14 +126,16 @@ io.on("connection", (socket) => {
         let postTime = timeGMT + 32400000;
         const postData = await Name.findOne({ name: name });
         let num = postData.roomNum;
+        let cutMsg = msg.replace(/(\s　){3,}|\s{3,}|　{3,}/, "　　");
+        let newMsg = cutMsg.replace(/(\r\n){3,}|\r{3,}|\n{3,}/, "\n\n");
         const p = await Post.create({
           name: name,
-          msg: msg,
+          msg: newMsg,
           num: num,
           postTime: postTime,
         }); // save data to database
-        io.to(num).emit("chat message", { name, msg, postTime }); //ルームチャットに送信
-        io.emit("log message2", { msg, num, postTime }); //全体チャットに送信
+        io.to(num).emit("chat message", { name, newMsg, postTime }); //ルームチャットに送信
+        io.emit("log message2", { newMsg, num, postTime }); //全体チャットに送信
         io.emit("latest log fetch");
       } catch (e) {
         console.error(e);
