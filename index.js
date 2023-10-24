@@ -126,8 +126,7 @@ io.on("connection", (socket) => {
         let postTime = timeGMT + 32400000;
         const postData = await Name.findOne({ name: name });
         let num = postData.roomNum;
-        let strMsg = string(msg);
-        let cutMsg = strMsg.replace(/(\s　){3,}|\s{3,}|　{3,}/, "　　");
+        let cutMsg = msg.replace(/([ \u3000]{3,})/g, "  ");
         let newMsg = cutMsg.replace(/(\r\n){3,}|\r{3,}|\n{3,}/, "\n\n");
         const p = await Post.create({
           name: name,
