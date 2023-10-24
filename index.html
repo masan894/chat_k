@@ -105,7 +105,7 @@
     </section>
     <!--ここから右半分-->
     <section id="subChat">
-      <h2>他のグループのチャットを見に行こう</h2>
+      <h2>全体/グループ別ログ</h2>
       <select id="roomSelect" onchange="viewChange();">
         <option value="0" selected>全ルームログ一覧(最新3件のみ)</option>
         <option value="1">ルーム1</option>
@@ -204,12 +204,12 @@
 
       const form = document.getElementById("form");
       const mainTextArea = document.getElementById("mainTextArea");
+      const button = document.getElementById("button");
 
       window.addEventListener("load", function () {
         let name = window.prompt("氏名を入力してください");
         if (name == null || name == "") {
           window.alert("ページを更新し、名前を入力し直してください");
-          const button = document.getElementById("button");
           button.disabled = true;
         } else {
           socket.emit("login", name);
@@ -218,8 +218,16 @@
 
       form.addEventListener("submit", (e) => {
         e.preventDefault();
-        if (mainTextArea.value) {
-          socket.emit("chat message", String(mainTextArea.value));
+        let v = /^[\r\n\s]+$/;
+        let z = v.test(mainTextArea.value);
+        if (mainTextArea.value == null || mainTextArea.value == "" || z) {
+          window.alert(
+            "メッセージが空白か、もしくは使用できない文字が含まれています。"
+          );
+        } else {
+          let reText = mainTextArea.value.replace(/^[\r\s\n]+/, "");
+          let text = reText.replace(/[\r\s\n]+$/, "");
+          socket.emit("chat message", text);
           mainTextArea.value = "";
         }
       });
@@ -243,7 +251,7 @@
         sub.style.display = "none";
         let item = document.createElement("h2");
         item.innerText =
-          "氏名が現在ログインしている他のユーザと重複しています。\nページを更新し、氏名を入力し直してください";
+          "氏名が現在ログインしている他のユーザと重複しています。\nページを更新して氏名を入力し直してください。\n自分の名前なのにこのメッセージが出る場合は、お手数ですが異なる文字列にして入り直してみてくださいm(_ _)m";
         body.appendChild(item);
       });
 
