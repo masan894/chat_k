@@ -92,6 +92,57 @@
       [id*="sub"] > li:last-child {
         border-bottom: 0px;
       }
+      /*セレクトボックスのCSS*/
+      .selectbox-002 {
+        position: relative;
+      }
+
+      .selectbox-002::before,
+      .selectbox-002::after {
+        position: absolute;
+        content: "";
+        pointer-events: none;
+      }
+
+      .selectbox-002::before {
+        right: 0;
+        display: inline-block;
+        width: 2.8em;
+        height: 2.8em;
+        border-radius: 0 25px 25px 0;
+        background-color: #2589d0;
+        content: "";
+      }
+
+      .selectbox-002::after {
+        position: absolute;
+        top: 50%;
+        right: 1.4em;
+        transform: translate(50%, -50%) rotate(45deg);
+        width: 6px;
+        height: 6px;
+        border-bottom: 3px solid #fff;
+        border-right: 3px solid #fff;
+        content: "";
+      }
+
+      .selectbox-002 select {
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        min-width: 230px;
+        height: 2.8em;
+        padding: 0.4em 3.6em 0.4em 0.8em;
+        border: 2px solid #2589d0;
+        border-radius: 25px;
+        color: #333333;
+        font-size: 1em;
+        cursor: pointer;
+      }
+
+      .selectbox-002 select:focus {
+        outline: 1px solid #2589d0;
+      }
     </style>
   </head>
   <body id="body">
@@ -106,17 +157,20 @@
     <!--ここから右半分-->
     <section id="subChat">
       <h2>全体/グループ別ログ</h2>
-      <select id="roomSelect" onchange="viewChange();">
-        <option value="0" selected>全ルームログ一覧(最新3件のみ)</option>
-        <option value="1">ルーム1</option>
-        <option value="2">ルーム2</option>
-        <option value="3">ルーム3</option>
-        <option value="4">ルーム4</option>
-        <option value="5">ルーム5</option>
-        <option value="6">ルーム6</option>
-        <option value="7">ルーム7</option>
-        <option value="8">ルーム8</option>
-      </select>
+      他のグループのチャットを見に行こう
+      <label class="selectbox-002">
+        <select id="roomSelect" onchange="viewChange();">
+          <option value="0" selected>全ルーム最新ログ</option>
+          <option value="1">ルーム1</option>
+          <option value="2">ルーム2</option>
+          <option value="3">ルーム3</option>
+          <option value="4">ルーム4</option>
+          <option value="5">ルーム5</option>
+          <option value="6">ルーム6</option>
+          <option value="7">ルーム7</option>
+          <option value="8">ルーム8</option>
+        </select>
+      </label>
       <div id="log1">
         <h2>
           Room1:
@@ -401,7 +455,7 @@
 
       function addRoomNum(Num) {
         let id = document.getElementById("roomId");
-        id.innerText = `ここはルーム${Num}です`;
+        id.innerText = `ルーム${Num}`;
       }
 
       function viewChange() {
