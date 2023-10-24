@@ -219,7 +219,7 @@
       form.addEventListener("submit", (e) => {
         e.preventDefault();
         if (mainTextArea.value) {
-          socket.emit("chat message", mainTextArea.value);
+          socket.emit("chat message", String(mainTextArea.value));
           mainTextArea.value = "";
         }
       });
