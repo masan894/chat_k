@@ -47,6 +47,8 @@ app.get("/", (req, res) => {
 let roomNum = 0; //部屋番号の初期化
 io.on("connection", (socket) => {
   socket.on("login", async (name) => {
+    /*await Post.deleteMany({});　投稿履歴全削除コマンド
+    await Name.deleteMany({});　ログイン履歴全削除コマンド*/
     const historyName = await Name.findOne({ name: name });
     for (let z = 1; z < 9; z++) {
       const logName = await Name.find({
@@ -119,23 +121,23 @@ io.on("connection", (socket) => {
     }
 
     //以下、チャット送信時の処理
-    socket.on("chat message", async (msg) => {
+    socket.on("chat message", async (text) => {
       try {
         let time = new Date();
         let timeGMT = time.getTime();
         let postTime = timeGMT + 32400000;
         const postData = await Name.findOne({ name: name });
         let num = postData.roomNum;
-        let cutMsg = msg.replace(/([ \u3000]{3,})/g, "  ");
-        let newMsg = cutMsg.replace(/(\r\n){3,}|\r{3,}|\n{3,}/, "\n\n");
+        let cut = text.replace(/([ \u3000]{3,})/g, "  ");
+        let msg = cut.replace(/(\r\n|\r|\n){3,}/g, "\n\n");
         const p = await Post.create({
           name: name,
-          msg: newMsg,
+          msg: msg,
           num: num,
           postTime: postTime,
         }); // save data to database
-        io.to(num).emit("chat message", { name, newMsg, postTime }); //ルームチャットに送信
-        io.emit("log message2", { newMsg, num, postTime }); //全体チャットに送信
+        io.to(num).emit("chat message", { name, msg, postTime }); //ルームチャットに送信
+        io.emit("log message2", { msg, num, postTime }); //全体チャットに送信
         io.emit("latest log fetch");
       } catch (e) {
         console.error(e);
