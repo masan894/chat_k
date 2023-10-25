@@ -37,8 +37,10 @@
         overflow-y: auto;
       }
 
-      /*div[id*="log"] {
-      }*/
+      [id*="log"] {
+        border: solid 2px #429475;
+        border-radius: 9px;
+      }
 
       #form {
         height: 12vh;
@@ -170,7 +172,7 @@
       他のグループのチャットを見に行こう
       <label class="selectbox-002">
         <select id="roomSelect" onchange="viewChange();">
-          <option value="0" selected>全ルーム最新ログ</option>
+          <option value="0" selected>全体(各ルーム最新3件)</option>
           <option value="1">ルーム1</option>
           <option value="2">ルーム2</option>
           <option value="3">ルーム3</option>
@@ -479,6 +481,13 @@
         let cols = document.getElementById("cols");
         if (selected > 0) {
           cols.style.flexDirection = "column";
+          if (selected > 4) {
+            col1.style.width = "50%";
+            col2.style.width = "100%";
+          } else {
+            col1.style.width = "100%";
+            col2.style.width = "50%";
+          }
           for (let z = 1; z < 9; z++) {
             if (z == selected) {
               document.getElementById(`log${z}`).style.display = "";
@@ -495,6 +504,8 @@
           }
         } else if (selected == 0) {
           cols.style.flexDirection = "row";
+          col1.style.width = "50%";
+          col2.style.width = "50%";
           for (let z = 1; z < 9; z++) {
             document.getElementById(`log${z}`).style.display = "";
             let child = Array.from(document.getElementById(`sub${z}`).children);
@@ -509,7 +520,7 @@
 
       function latestLog() {
         for (let z = 1; z < 9; z++) {
-          document.getElementById(`log${z}`).style.display = "";
+          //document.getElementById(`log${z}`).style.display = "";
           let child = Array.from(document.getElementById(`sub${z}`).children);
           if (child.length > 3) {
             for (let a = 0; a <= child.length - 4; a++) {
