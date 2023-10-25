@@ -144,13 +144,14 @@
         outline: 1px solid #2589d0;
       }
       /*全体ログの2列表示に関するCSS*/
-      .col1,
-      .col2 {
+      #col1,
+      #col2 {
         width: 50%;
       }
 
-      .cols {
+      #cols {
         display: flex;
+        flex-direction: row;
       }
     </style>
   </head>
@@ -180,8 +181,8 @@
           <option value="8">ルーム8</option>
         </select>
       </label>
-      <div class="cols">
-        <div class="col1">
+      <div id="cols">
+        <div id="col1">
           <div id="log1">
             <h2>
               Room1:
@@ -223,7 +224,7 @@
             <ul id="sub4" class="sub"></ul>
           </div>
         </div>
-        <div class="col2">
+        <div id="col2">
           <div id="log5">
             <h2>
               Room5:
@@ -475,11 +476,9 @@
 
       function viewChange() {
         let selected = document.getElementById("roomSelect").selectedIndex;
-        const cols = document.getElementsByClassName("cols");
-        const col1 = document.getElementsByClassName("col1");
-        const col2 = document.getElementsByClassName("col2");
+        let cols = document.getElementById("cols");
         if (selected > 0) {
-          cols.flexDirection = "column";
+          cols.style.flexDirection = "column";
           for (let z = 1; z < 9; z++) {
             if (z == selected) {
               document.getElementById(`log${z}`).style.display = "";
@@ -494,21 +493,8 @@
               document.getElementById(`log${z}`).style.display = "none";
             }
           }
-          if (selected > 4) {
-            col1.display = "none";
-            col2.display = "";
-            col2.width = "100%";
-          } else {
-            col1.display = "";
-            col2.display = "none";
-            col1.width = "100%";
-          }
         } else if (selected == 0) {
-          cols.flexDirection = "row";
-          col1.width = "50%";
-          col2.width = "50%";
-          col1.display = "";
-          col2.display = "";
+          cols.style.flexDirection = "row";
           for (let z = 1; z < 9; z++) {
             document.getElementById(`log${z}`).style.display = "";
             let child = Array.from(document.getElementById(`sub${z}`).children);
