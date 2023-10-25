@@ -519,12 +519,15 @@
       }
 
       function latestLog() {
-        for (let z = 1; z < 9; z++) {
-          //document.getElementById(`log${z}`).style.display = "";
-          let child = Array.from(document.getElementById(`sub${z}`).children);
-          if (child.length > 3) {
-            for (let a = 0; a <= child.length - 4; a++) {
-              child[a].style.display = "none";
+        let selected = document.getElementById("roomSelect").selectedIndex;
+        if (selected == 0 || selected == null) {
+          for (let z = 1; z < 9; z++) {
+            //document.getElementById(`log${z}`).style.display = "";
+            let child = Array.from(document.getElementById(`sub${z}`).children);
+            if (child.length > 3) {
+              for (let a = 0; a <= child.length - 4; a++) {
+                child[a].style.display = "none";
+              }
             }
           }
         }
