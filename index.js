@@ -149,12 +149,14 @@ io.on("connection", (socket) => {
     });
     //切断時の処理
     socket.on("disconnect", async () => {
-      await Name.updateOne(
-        { name: name },
-        { $inc: { state: -1 } },
-        { runValidator: true }
-      );
       let postData = await Name.findOne({ name: name });
+      if (postData.state > 0) {
+        await Name.updateOne(
+          { name: name },
+          { $inc: { state: -1 } },
+          { runValidator: true }
+        );
+      }
       let num = postData.roomNum;
       let time = new Date();
       let timeGMT = time.getTime();
