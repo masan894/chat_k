@@ -47,8 +47,8 @@ app.get("/", (req, res) => {
 let roomNum = 0; //部屋番号の初期化
 io.on("connection", (socket) => {
   socket.on("login", async (name) => {
-    /*await Post.deleteMany({});　投稿履歴全削除コマンド
-    await Name.deleteMany({});　ログイン履歴全削除コマンド*/
+    //await Post.deleteMany({}); //投稿履歴全削除コマンド
+    //await Name.deleteMany({});　//ログイン履歴全削除コマンド
     const historyName = await Name.findOne({ name: name });
     for (let z = 1; z < 9; z++) {
       const logName = await Name.find({
@@ -59,9 +59,13 @@ io.on("connection", (socket) => {
       logName.forEach((p) => socket.emit("changeMember", p)); //クライアントの画面にメンバーを表示
     }
 
-    const topText =
+    const topText1 =
       "ページを閉じるか更新するとログアウトします。初回と同じ名前を用いて再ログインしてください。";
-    socket.emit("topLog", topText); //トップ表示を上に固定
+    socket.emit("topLog", topText1); //トップ表示1
+
+    const topText2 =
+      "投稿はルーム内には実名で、ルーム外には匿名で表示されます。\n外部からはルームのメンバーが誰であるかまでしかわかりません。";
+    socket.emit("topLog", topText2); //トップ表示2
 
     //MongoDBを用いたログ読み込み処理
     try {
