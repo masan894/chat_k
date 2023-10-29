@@ -166,7 +166,7 @@ io.on("connection", (socket) => {
         io.emit("removeMember", { name, num });
         const logName = await Name.find({ roomNum: num, name: { $ne: name } });
         logName.forEach((p) => io.emit("changeMember", p));
-        console.log(`${name} disconnected`);
+        console.log(`${name} disconnected from ${postData.roomNum}`);
       }
     });
   });
