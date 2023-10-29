@@ -47,8 +47,8 @@ app.get("/", (req, res) => {
 let roomNum = 0; //部屋番号の初期化
 io.on("connection", (socket) => {
   socket.on("login", async (name) => {
-    //await Post.deleteMany({}); //投稿履歴全削除コマンド
-    //await Name.deleteMany({});　//ログイン履歴全削除コマンド
+    //await Post.deleteMany({});//投稿履歴全削除コマンド
+    //await Name.deleteMany({});//ログイン履歴全削除コマンド
     const historyName = await Name.findOne({ name: name });
     for (let z = 1; z < 9; z++) {
       const logName = await Name.find({
@@ -64,7 +64,7 @@ io.on("connection", (socket) => {
     socket.emit("topLog", topText1); //トップ表示1
 
     const topText2 =
-      "投稿はルーム内には実名で、ルーム外には匿名で表示されます。\n外部からはルームのメンバーが誰であるかまでしかわかりません。";
+      "投稿はルーム内には実名で、ルーム外には匿名で表示されます。\n外部からは各ルームのメンバーが誰であるかまでしかわかりません。";
     socket.emit("topLog", topText2); //トップ表示2
 
     //MongoDBを用いたログ読み込み処理
@@ -96,7 +96,7 @@ io.on("connection", (socket) => {
           { runValidator: true }
         );
         io.emit("changeMember", historyName); //名前送信時の処理
-        console.log(`${name} connected`);
+        console.log(`${name} connected to room ${historyName.roomNum}`);
       } else if (historyName.state == 1) {
         await Name.updateOne(
           { name: name },
@@ -121,7 +121,7 @@ io.on("connection", (socket) => {
       const mainPosts = await Post.find({ num: roomNum });
       mainPosts.forEach((p) => socket.emit("chat message", p));
       io.to(roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
-      console.log(`${name} connected`);
+      console.log(`${name} connected to room ${roomNum}`);
     }
 
     //以下、チャット送信時の処理
