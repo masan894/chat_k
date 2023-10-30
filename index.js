@@ -150,6 +150,7 @@ io.on("connection", (socket) => {
     //切断時の処理
     socket.on("disconnect", async () => {
       let postData = await Name.findOne({ name: name });
+      console.log(`${name} disconnected from ${postData.roomNum}`);
       if (postData.state > 0) {
         await Name.updateOne(
           { name: name },
@@ -166,7 +167,6 @@ io.on("connection", (socket) => {
         io.emit("removeMember", { name, num });
         const logName = await Name.find({ roomNum: num, name: { $ne: name } });
         logName.forEach((p) => io.emit("changeMember", p));
-        console.log(`${name} disconnected from ${postData.roomNum}`);
       }
     });
   });
