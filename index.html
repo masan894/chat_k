@@ -386,10 +386,10 @@
       });
 
       socket.on("removeMember", (data) => {
-        removeMember(data);
+        removeMember(data.name, data.num);
       });
 
-      function removeMember(data) {
+      function removeMember(name, num) {
         let member1 = document.getElementById("member1");
         let member2 = document.getElementById("member2");
         let member3 = document.getElementById("member3");
@@ -398,7 +398,7 @@
         let member6 = document.getElementById("member6");
         let member7 = document.getElementById("member7");
         let member8 = document.getElementById("member8");
-        const memberArray = [
+        const array = [
           0,
           member1,
           member2,
@@ -409,7 +409,10 @@
           member7,
           member8,
         ];
-        memberArray[data.num].textContent = "";
+
+        let text = array[num].textContent; // 要素のtextContentを取得
+        let newText = text.replace(`${name},`, ""); // textContentを書き換え
+        array[num].textContent = newText; // 新しいtextContentを要素にセット
       }
 
       function addLogin(msg) {
