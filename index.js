@@ -82,7 +82,8 @@ io.on("connection", (socket) => {
     if (historyName) {
       if (historyName.state == 0) {
         socket.join(historyName.roomNum); //2回目以降の入室処理
-        socket.emit("roomNumSet", historyName.roomNum); //クライアント自身の画面にroomNumを表示させる
+        let clientText = `${name}さんはルーム${historyName.roomNum}です`;
+        socket.emit("roomNumSet", clientText); //クライアント自身の画面にroomNumを表示させる
         let time = new Date();
         let timeGMT = time.getTime();
         let timeText = timeGMT + 32400000;
@@ -114,7 +115,8 @@ io.on("connection", (socket) => {
       let n = await Name.create({ name: name, roomNum: roomNum, state: login }); // save data to database
       socket.join(roomNum); //1回目の入室処理
       io.emit("changeMember", n); //名前送信時の処理
-      socket.emit("roomNumSet", roomNum); //クライアント自身の画面にroomNumを表示させる
+      let clientText = `${name}さんはルーム${roomNum}です`;
+      socket.emit("roomNumSet", clientText); //クライアント自身の画面にroomNumを表示させる
       let time = new Date();
       let timeGMT = time.getTime();
       let timeText = timeGMT + 32400000;
