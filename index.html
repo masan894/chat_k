@@ -381,8 +381,8 @@
         changeMember(data);
       });
 
-      socket.on("roomNumSet", (roomNum) => {
-        addRoomNum(roomNum);
+      socket.on("roomNumSet", (clientText) => {
+        addRoomNum(clientText);
       });
 
       socket.on("removeMember", (data) => {
@@ -475,9 +475,9 @@
         roomArray[roomNum].appendChild(item);
       }
 
-      function addRoomNum(Num) {
+      function addRoomNum(text) {
         let id = document.getElementById("roomId");
-        id.innerText = `ルーム${Num}`;
+        id.innerText = text;
       }
 
       function viewChange() {
