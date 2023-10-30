@@ -150,24 +150,24 @@ io.on("connection", (socket) => {
     //切断時の処理
     socket.on("disconnect", async () => {
       let postData = await Name.findOne({ name: name });
-      if (postData.state > 0) {
-        await Name.updateOne(
-          { name: name },
-          { $inc: { state: -1 } },
-          { runValidator: true }
-        );
-      }
       let num = postData.roomNum;
+      console.log(`${name} disconnected from ${num}`);
       let time = new Date();
       let timeGMT = time.getTime();
       let timeText = timeGMT + 32400000;
-      if (postData.state == 0) {
+
+      if (postData.state == 1) {
         io.to(num).emit("logout", { name, timeText }); //部屋のメンバーに退室を通知
         io.emit("removeMember", { name, num });
-        const logName = await Name.find({ roomNum: num, name: { $ne: name } });
-        logName.forEach((p) => io.emit("changeMember", p));
-        console.log(`${name} disconnected from ${postData.roomNum}`);
+        /*const logName = await Name.find({ roomNum: num, name: { $ne: name } });
+        logName.forEach((p) => io.emit("changeMember", p));*/
       }
+
+      await Name.updateOne(
+        { name: name },
+        { $inc: { state: -1 } },
+        { runValidator: true }
+      );
     });
   });
 });
