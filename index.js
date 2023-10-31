@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
     //await Post.deleteMany({});//投稿履歴全削除コマンド
     //await Name.deleteMany({});//ログイン履歴全削除コマンド
     const historyName = await Name.findOne({ name: name });
-    for (let z = 1; z < 9; z++) {
+    for (let z = 1; z < 11; z++) {
       const logName = await Name.find({
         roomNum: z,
         name: { $ne: name },
@@ -69,7 +69,7 @@ io.on("connection", (socket) => {
 
     //MongoDBを用いたログ読み込み処理
     try {
-      for (let z = 1; z < 9; z++) {
+      for (let z = 1; z < 11; z++) {
         const logPosts = await Post.find({ num: z });
         logPosts.forEach((p) => socket.emit("log message", p));
         socket.emit("latest log fetch");
@@ -109,7 +109,7 @@ io.on("connection", (socket) => {
     } else {
       const login = 1;
       roomNum += 1;
-      if (roomNum == 9) {
+      if (roomNum == 11) {
         roomNum = 1;
       }
       let n = await Name.create({ name: name, roomNum: roomNum, state: login }); // save data to database
@@ -134,8 +134,7 @@ io.on("connection", (socket) => {
         let postTime = timeGMT + 32400000;
         const postData = await Name.findOne({ name: name });
         let num = postData.roomNum;
-        let cut = text.replace(/([ \u3000]{3,})/g, "  ");
-        let msg = cut.replace(/(\r\n|\r|\n){3,}/g, "\n\n");
+        let msg = text.replace(/([ \u3000]{3,})|(\r\n|\r|\n){3,}/g, "  ");
         const p = await Post.create({
           name: name,
           msg: msg,
