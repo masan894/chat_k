@@ -159,7 +159,10 @@
   </head>
   <body id="body">
     <section id="mainChat">
-      <h1 id="roomId">k-chat データ読み込み中...</h1>
+      <h1 id="roomId">
+        k-chat
+        データ読み込み中...(しばらく待っても動かない場合はページを更新してください)
+      </h1>
       <ul id="mainLog"></ul>
       <form id="form" action="">
         <textarea id="mainTextArea" rows="3"></textarea
@@ -181,6 +184,8 @@
           <option value="6">ルーム6</option>
           <option value="7">ルーム7</option>
           <option value="8">ルーム8</option>
+          <option value="9">ルーム9</option>
+          <option value="10">ルーム10</option>
         </select>
       </label>
       <div id="cols">
@@ -225,8 +230,6 @@
             </h2>
             <ul id="sub4" class="sub"></ul>
           </div>
-        </div>
-        <div id="col2">
           <div id="log5">
             <h2>
               Room5:
@@ -237,6 +240,8 @@
             </h2>
             <ul id="sub5" class="sub"></ul>
           </div>
+        </div>
+        <div id="col2">
           <div id="log6">
             <h2>
               Room6:
@@ -267,6 +272,26 @@
             </h2>
             <ul id="sub8" class="sub"></ul>
           </div>
+          <div id="log9">
+            <h2>
+              Room9:
+              <div
+                id="member9"
+                style="display: inline-block; _display: inline"
+              ></div>
+            </h2>
+            <ul id="sub9" class="sub"></ul>
+          </div>
+          <div id="log10">
+            <h2>
+              Room10:
+              <div
+                id="member10"
+                style="display: inline-block; _display: inline"
+              ></div>
+            </h2>
+            <ul id="sub10" class="sub"></ul>
+          </div>
         </div>
       </div>
     </section>
@@ -279,9 +304,13 @@
       const button = document.getElementById("button");
 
       window.addEventListener("load", function () {
-        let name = window.prompt("氏名を入力してください");
+        let prompt = window.prompt("氏名を入力してください");
+        let cut = prompt.replace(/^[\r\s\n]+|[\r\s\n]+$/g, "");
+        let name = cut.replace(/([ \u3000]{3,})|(\r\n|\r|\n){3,}/g, "  ");
         if (name == null || name == "") {
-          window.alert("ページを更新し、名前を入力し直してください");
+          window.alert(
+            "名前が空白か、使用できない文字が含まれています。ページを更新し、名前を入力し直してください"
+          );
           button.disabled = true;
         } else {
           socket.emit("login", name);
@@ -297,8 +326,7 @@
             "メッセージが空白か、もしくは使用できない文字が含まれています。"
           );
         } else {
-          let reText = mainTextArea.value.replace(/^[\r\s\n]+/, "");
-          let text = reText.replace(/[\r\s\n]+$/, "");
+          let text = mainTextArea.value.replace(/^[\r\s\n]+|[\r\s\n]+$/g, "");
           socket.emit("chat message", text);
           mainTextArea.value = "";
         }
@@ -398,6 +426,8 @@
         let member6 = document.getElementById("member6");
         let member7 = document.getElementById("member7");
         let member8 = document.getElementById("member8");
+        let member9 = document.getElementById("member9");
+        let member10 = document.getElementById("member10");
         const array = [
           0,
           member1,
@@ -408,6 +438,8 @@
           member6,
           member7,
           member8,
+          member9,
+          member10,
         ];
 
         let text = array[num].textContent; // 要素のtextContentを取得
@@ -446,6 +478,8 @@
         let member6 = document.getElementById("member6");
         let member7 = document.getElementById("member7");
         let member8 = document.getElementById("member8");
+        let member9 = document.getElementById("member9");
+        let member10 = document.getElementById("member10");
         const memberArray = [
           0,
           member1,
@@ -456,6 +490,8 @@
           member6,
           member7,
           member8,
+          member9,
+          member10,
         ];
         memberArray[data.roomNum].textContent += data.name + ",";
       }
@@ -470,7 +506,21 @@
         let sub6 = document.getElementById("sub6");
         let sub7 = document.getElementById("sub7");
         let sub8 = document.getElementById("sub8");
-        const roomArray = [0, sub1, sub2, sub3, sub4, sub5, sub6, sub7, sub8];
+        let sub9 = document.getElementById("sub9");
+        let sub10 = document.getElementById("sub10");
+        const roomArray = [
+          0,
+          sub1,
+          sub2,
+          sub3,
+          sub4,
+          sub5,
+          sub6,
+          sub7,
+          sub8,
+          sub9,
+          sub10,
+        ];
         item.innerText = `${msg} \n ${postTime}`;
         roomArray[roomNum].appendChild(item);
       }
@@ -485,14 +535,14 @@
         let cols = document.getElementById("cols");
         if (selected > 0) {
           cols.style.flexDirection = "column";
-          if (selected > 4) {
+          if (selected > 5) {
             col1.style.width = "50%";
             col2.style.width = "100%";
           } else {
             col1.style.width = "100%";
             col2.style.width = "50%";
           }
-          for (let z = 1; z < 9; z++) {
+          for (let z = 1; z < 11; z++) {
             if (z == selected) {
               document.getElementById(`log${z}`).style.display = "";
               document.getElementById(`sub${z}`).style.display = "";
@@ -510,7 +560,7 @@
           cols.style.flexDirection = "row";
           col1.style.width = "50%";
           col2.style.width = "50%";
-          for (let z = 1; z < 9; z++) {
+          for (let z = 1; z < 11; z++) {
             document.getElementById(`log${z}`).style.display = "";
             let child = Array.from(document.getElementById(`sub${z}`).children);
             if (child.length > 3) {
@@ -525,7 +575,7 @@
       function latestLog() {
         let selected = document.getElementById("roomSelect").selectedIndex;
         if (selected == 0 || selected == null) {
-          for (let z = 1; z < 9; z++) {
+          for (let z = 1; z < 11; z++) {
             //document.getElementById(`log${z}`).style.display = "";
             let child = Array.from(document.getElementById(`sub${z}`).children);
             if (child.length > 3) {
