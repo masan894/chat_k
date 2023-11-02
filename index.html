@@ -12,7 +12,7 @@
 
       #mainChat {
         height: 88vh;
-        width: 50vw;
+        width: 33.3vw;
         float: left;
         flex: 1;
         overflow: hidden;
@@ -25,12 +25,12 @@
 
       #subChat {
         height: 100vh;
-        width: 50vw;
+        width: 66.6vw;
         flex: 1;
         overflow: hidden;
         background: #a3d1bf;
         position: fixed;
-        left: 50vw;
+        left: 33.3vw;
       }
 
       #subChat:hover {
@@ -44,7 +44,7 @@
 
       #form {
         height: 12vh;
-        width: 50vw;
+        width: 33.3vw;
         background: rgba(0, 0, 0, 0.15);
         position: fixed;
         bottom: 0;
@@ -147,8 +147,9 @@
       }
       /*全体ログの2列表示に関するCSS*/
       #col1,
-      #col2 {
-        width: 50%;
+      #col2,
+      #col3 {
+        width: 33.3vw;
       }
 
       #cols {
@@ -171,8 +172,7 @@
     </section>
     <!--ここから右半分-->
     <section id="subChat">
-      <h2>全体/グループ別ログ</h2>
-      他のグループのチャットを見に行こう
+      ログ切り替え
       <label class="selectbox-002">
         <select id="roomSelect" onchange="viewChange();">
           <option value="0" selected>全体(各ルーム最新3件)</option>
@@ -182,10 +182,6 @@
           <option value="4">ルーム4</option>
           <option value="5">ルーム5</option>
           <option value="6">ルーム6</option>
-          <option value="7">ルーム7</option>
-          <option value="8">ルーム8</option>
-          <option value="9">ルーム9</option>
-          <option value="10">ルーム10</option>
         </select>
       </label>
       <div id="cols">
@@ -210,6 +206,8 @@
             </h2>
             <ul id="sub2" class="sub"></ul>
           </div>
+        </div>
+        <div id="col2">
           <div id="log3">
             <h2>
               Room3:
@@ -230,6 +228,8 @@
             </h2>
             <ul id="sub4" class="sub"></ul>
           </div>
+        </div>
+        <div id="col3">
           <div id="log5">
             <h2>
               Room5:
@@ -240,8 +240,6 @@
             </h2>
             <ul id="sub5" class="sub"></ul>
           </div>
-        </div>
-        <div id="col2">
           <div id="log6">
             <h2>
               Room6:
@@ -251,46 +249,6 @@
               ></div>
             </h2>
             <ul id="sub6" class="sub"></ul>
-          </div>
-          <div id="log7">
-            <h2>
-              Room7:
-              <div
-                id="member7"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub7" class="sub"></ul>
-          </div>
-          <div id="log8">
-            <h2>
-              Room8:
-              <div
-                id="member8"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub8" class="sub"></ul>
-          </div>
-          <div id="log9">
-            <h2>
-              Room9:
-              <div
-                id="member9"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub9" class="sub"></ul>
-          </div>
-          <div id="log10">
-            <h2>
-              Room10:
-              <div
-                id="member10"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub10" class="sub"></ul>
           </div>
         </div>
       </div>
@@ -382,13 +340,7 @@
       });
 
       socket.on("log message", (data) => {
-        let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
-        let minute = Math.floor(data.postTime / 1000 / 60) % 60;
-        if (minute < 10) {
-          minute = "0" + String(minute);
-        }
-        let localTime = String(hour) + ":" + String(minute);
-        addLog(data.msg, data.num, localTime);
+        addLog(data.msg, data.num);
       });
 
       socket.on("latest log fetch", () => {
@@ -396,13 +348,7 @@
       });
 
       socket.on("log message2", (data) => {
-        let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
-        let minute = Math.floor(data.postTime / 1000 / 60) % 60;
-        if (minute < 10) {
-          minute = "0" + String(minute);
-        }
-        let localTime = String(hour) + ":" + String(minute);
-        addLog(data.msg, data.num, localTime);
+        addLog(data.msg, data.num);
       });
 
       socket.on("changeMember", (data) => {
@@ -424,23 +370,7 @@
         let member4 = document.getElementById("member4");
         let member5 = document.getElementById("member5");
         let member6 = document.getElementById("member6");
-        let member7 = document.getElementById("member7");
-        let member8 = document.getElementById("member8");
-        let member9 = document.getElementById("member9");
-        let member10 = document.getElementById("member10");
-        const array = [
-          0,
-          member1,
-          member2,
-          member3,
-          member4,
-          member5,
-          member6,
-          member7,
-          member8,
-          member9,
-          member10,
-        ];
+        const array = [0, member1, member2, member3, member4, member5, member6];
 
         let text = array[num].textContent; // 要素のtextContentを取得
         let newText = text.replace(`${name},`, ""); // textContentを書き換え
@@ -476,10 +406,6 @@
         let member4 = document.getElementById("member4");
         let member5 = document.getElementById("member5");
         let member6 = document.getElementById("member6");
-        let member7 = document.getElementById("member7");
-        let member8 = document.getElementById("member8");
-        let member9 = document.getElementById("member9");
-        let member10 = document.getElementById("member10");
         const memberArray = [
           0,
           member1,
@@ -488,15 +414,11 @@
           member4,
           member5,
           member6,
-          member7,
-          member8,
-          member9,
-          member10,
         ];
         memberArray[data.roomNum].textContent += data.name + ",";
       }
 
-      function addLog(msg, roomNum, postTime) {
+      function addLog(msg, roomNum) {
         let item = document.createElement("li");
         let sub1 = document.getElementById("sub1");
         let sub2 = document.getElementById("sub2");
@@ -504,24 +426,8 @@
         let sub4 = document.getElementById("sub4");
         let sub5 = document.getElementById("sub5");
         let sub6 = document.getElementById("sub6");
-        let sub7 = document.getElementById("sub7");
-        let sub8 = document.getElementById("sub8");
-        let sub9 = document.getElementById("sub9");
-        let sub10 = document.getElementById("sub10");
-        const roomArray = [
-          0,
-          sub1,
-          sub2,
-          sub3,
-          sub4,
-          sub5,
-          sub6,
-          sub7,
-          sub8,
-          sub9,
-          sub10,
-        ];
-        item.innerText = `${msg} \n ${postTime}`;
+        const roomArray = [0, sub1, sub2, sub3, sub4, sub5, sub6];
+        item.innerText = `${msg}`;
         roomArray[roomNum].appendChild(item);
       }
 
@@ -535,14 +441,20 @@
         let cols = document.getElementById("cols");
         if (selected > 0) {
           cols.style.flexDirection = "column";
-          if (selected > 5) {
-            col1.style.width = "50%";
-            col2.style.width = "100%";
+          if (selected == 1 || selected == 2) {
+            col1.style.width = "100vw";
+            col2.style.width = "0vw";
+            col3.style.width = "0vw";
+          } else if (selected == 3 || selected == 4) {
+            col1.style.width = "0vw";
+            col2.style.width = "100vw";
+            col3.style.width = "0vw";
           } else {
-            col1.style.width = "100%";
-            col2.style.width = "50%";
+            col1.style.width = "0vw";
+            col2.style.width = "0vw";
+            col3.style.width = "100vw";
           }
-          for (let z = 1; z < 11; z++) {
+          for (let z = 1; z < 7; z++) {
             if (z == selected) {
               document.getElementById(`log${z}`).style.display = "";
               document.getElementById(`sub${z}`).style.display = "";
@@ -558,9 +470,12 @@
           }
         } else if (selected == 0) {
           cols.style.flexDirection = "row";
-          col1.style.width = "50%";
-          col2.style.width = "50%";
-          for (let z = 1; z < 11; z++) {
+          col1.style.width = "33.3vw";
+          col2.style.width = "33.3vw";
+          col3.style.width = "33.3vw";
+          /*col1.style.width = "50%";
+          col2.style.width = "50%";*/
+          for (let z = 1; z < 7; z++) {
             document.getElementById(`log${z}`).style.display = "";
             let child = Array.from(document.getElementById(`sub${z}`).children);
             if (child.length > 3) {
@@ -575,7 +490,7 @@
       function latestLog() {
         let selected = document.getElementById("roomSelect").selectedIndex;
         if (selected == 0 || selected == null) {
-          for (let z = 1; z < 11; z++) {
+          for (let z = 1; z < 7; z++) {
             //document.getElementById(`log${z}`).style.display = "";
             let child = Array.from(document.getElementById(`sub${z}`).children);
             if (child.length > 3) {

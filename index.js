@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
     //await Post.deleteMany({});//投稿履歴全削除コマンド
     //await Name.deleteMany({});//ログイン履歴全削除コマンド
     const historyName = await Name.findOne({ name: name });
-    for (let z = 1; z < 11; z++) {
+    for (let z = 1; z < 7; z++) {
       const logName = await Name.find({
         roomNum: z,
         name: { $ne: name },
@@ -69,7 +69,7 @@ io.on("connection", (socket) => {
 
     //MongoDBを用いたログ読み込み処理
     try {
-      for (let z = 1; z < 11; z++) {
+      for (let z = 1; z < 7; z++) {
         const logPosts = await Post.find({ num: z });
         logPosts.forEach((p) => socket.emit("log message", p));
         socket.emit("latest log fetch");
@@ -109,7 +109,7 @@ io.on("connection", (socket) => {
     } else {
       const login = 1;
       roomNum += 1;
-      if (roomNum == 11) {
+      if (roomNum == 7) {
         roomNum = 1;
       }
       let n = await Name.create({ name: name, roomNum: roomNum, state: login }); // save data to database
@@ -142,7 +142,7 @@ io.on("connection", (socket) => {
           postTime: postTime,
         }); // save data to database
         io.to(num).emit("chat message", { name, msg, postTime }); //ルームチャットに送信
-        io.emit("log message2", { msg, num, postTime }); //全体チャットに送信
+        io.emit("log message2", { msg, num }); //全体チャットに送信
         io.emit("latest log fetch");
       } catch (e) {
         console.error(e);
