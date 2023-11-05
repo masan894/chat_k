@@ -12,7 +12,7 @@
 
       #mainChat {
         height: 88vh;
-        width: 50vw;
+        width: 33.3vw;
         float: left;
         flex: 1;
         overflow: hidden;
@@ -25,12 +25,53 @@
 
       #subChat {
         height: 100vh;
-        width: 50vw;
+        width: 66.6vw;
         flex: 1;
         overflow: hidden;
         background: #a3d1bf;
         position: fixed;
-        left: 50vw;
+        left: 33.3vw;
+      }
+
+      #myMember {
+        list-style-type: none;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0;
+      }
+
+      #myMember > li {
+        width: 20%;
+        margin: 0px;
+        font-size: 1.2em;
+        text-decoration: none;
+        border: outset 3px #c2cbbd;
+        background-color: #c2cbbd;
+        text-align: center;
+        color: #000000;
+      }
+
+      [id*="member"] {
+        list-style-type: none;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0;
+      }
+
+      [id*="member"] > li {
+        width: 30%;
+        margin: 0;
+        font-size: 1.2em;
+        text-decoration: none;
+        border: outset 3px #c2cbbd;
+        background-color: #c2cbbd;
+        text-align: center;
+        color: #000000;
+      }
+
+      #myMember > li:first-child {
+        border: outset 3px #87bccc;
+        background-color: #87bccc;
       }
 
       #subChat:hover {
@@ -40,11 +81,16 @@
       [id*="log"] {
         border: solid 2px #429475;
         border-radius: 9px;
+        width: 21.9vw;
+      }
+
+      #roomsTop {
+        display: inline-block;
       }
 
       #form {
         height: 12vh;
-        width: 50vw;
+        width: 33.3vw;
         background: rgba(0, 0, 0, 0.15);
         position: fixed;
         bottom: 0;
@@ -81,11 +127,12 @@
       }
 
       [id*="sub"] > ul {
-        padding-left: 0;
+        padding: 0;
       }
 
       [id*="sub"] > li {
         margin: 5px;
+        padding: 0;
         font-size: 1.2em;
         list-style: none;
         border-bottom: 1px solid #000000;
@@ -96,7 +143,7 @@
       }
       /*セレクトボックスのCSS*/
       .selectbox-002 {
-        position: relative;
+        position: absolute;
       }
 
       .selectbox-002::before,
@@ -146,23 +193,20 @@
         outline: 1px solid #2589d0;
       }
       /*全体ログの2列表示に関するCSS*/
-      #col1,
-      #col2 {
-        width: 50%;
-      }
-
       #cols {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
       }
     </style>
   </head>
   <body id="body">
     <section id="mainChat">
-      <h1 id="roomId">
+      <h2 id="roomId">
         k-chat
         データ読み込み中...(しばらく待っても動かない場合はページを更新してください)
-      </h1>
+      </h2>
+      <ul id="myMember"></ul>
       <ul id="mainLog"></ul>
       <form id="form" action="">
         <textarea id="mainTextArea" rows="3"></textarea
@@ -171,10 +215,9 @@
     </section>
     <!--ここから右半分-->
     <section id="subChat">
-      <h2>全体/グループ別ログ</h2>
-      他のグループのチャットを見に行こう
+      <h2 id="roomsTop">その他の参加者</h2>
       <label class="selectbox-002">
-        <select id="roomSelect" onchange="viewChange();">
+        <select id="roomSelect" onchange="viewFetch();">
           <option value="0" selected>全体(各ルーム最新3件)</option>
           <option value="1">ルーム1</option>
           <option value="2">ルーム2</option>
@@ -183,115 +226,36 @@
           <option value="5">ルーム5</option>
           <option value="6">ルーム6</option>
           <option value="7">ルーム7</option>
-          <option value="8">ルーム8</option>
-          <option value="9">ルーム9</option>
-          <option value="10">ルーム10</option>
         </select>
       </label>
       <div id="cols">
-        <div id="col1">
-          <div id="log1">
-            <h2>
-              Room1:
-              <div
-                id="member1"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub1" class="sub"></ul>
-          </div>
-          <div id="log2">
-            <h2>
-              Room2:
-              <div
-                id="member2"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub2" class="sub"></ul>
-          </div>
-          <div id="log3">
-            <h2>
-              Room3:
-              <div
-                id="member3"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub3" class="sub"></ul>
-          </div>
-          <div id="log4">
-            <h2>
-              Room4:
-              <div
-                id="member4"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub4" class="sub"></ul>
-          </div>
-          <div id="log5">
-            <h2>
-              Room5:
-              <div
-                id="member5"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub5" class="sub"></ul>
-          </div>
+        <div id="log1">
+          <ul id="member1"></ul>
+          <ul id="sub1" class="sub"></ul>
         </div>
-        <div id="col2">
-          <div id="log6">
-            <h2>
-              Room6:
-              <div
-                id="member6"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub6" class="sub"></ul>
-          </div>
-          <div id="log7">
-            <h2>
-              Room7:
-              <div
-                id="member7"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub7" class="sub"></ul>
-          </div>
-          <div id="log8">
-            <h2>
-              Room8:
-              <div
-                id="member8"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub8" class="sub"></ul>
-          </div>
-          <div id="log9">
-            <h2>
-              Room9:
-              <div
-                id="member9"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub9" class="sub"></ul>
-          </div>
-          <div id="log10">
-            <h2>
-              Room10:
-              <div
-                id="member10"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
-            <ul id="sub10" class="sub"></ul>
-          </div>
+        <div id="log2">
+          <ul id="member2"></ul>
+          <ul id="sub2" class="sub"></ul>
+        </div>
+        <div id="log3">
+          <ul id="member3"></ul>
+          <ul id="sub3" class="sub"></ul>
+        </div>
+        <div id="log4">
+          <ul id="member4"></ul>
+          <ul id="sub4" class="sub"></ul>
+        </div>
+        <div id="log5">
+          <ul id="member5"></ul>
+          <ul id="sub5" class="sub"></ul>
+        </div>
+        <div id="log6">
+          <ul id="member6"></ul>
+          <ul id="sub6" class="sub"></ul>
+        </div>
+        <div id="log7">
+          <ul id="member7"></ul>
+          <ul id="sub7" class="sub"></ul>
         </div>
       </div>
     </section>
@@ -378,7 +342,7 @@
           minute = "0" + String(minute);
         }
         let localTime = String(hour) + ":" + String(minute);
-        addMessage("[" + data.name + "] " + data.msg, localTime);
+        addMessage(data.msg, localTime);
       });
 
       socket.on("log message", (data) => {
@@ -409,42 +373,54 @@
         changeMember(data);
       });
 
-      socket.on("roomNumSet", (clientText) => {
-        addRoomNum(clientText);
+      socket.on("roomMemberSet", (name) => {
+        addRoomMember(name);
+      });
+
+      socket.on("roomMemberLogSet", (data) => {
+        addRoomMember(data.name);
       });
 
       socket.on("removeMember", (data) => {
         removeMember(data.name, data.num);
       });
 
-      function removeMember(name, num) {
-        let member1 = document.getElementById("member1");
-        let member2 = document.getElementById("member2");
-        let member3 = document.getElementById("member3");
-        let member4 = document.getElementById("member4");
-        let member5 = document.getElementById("member5");
-        let member6 = document.getElementById("member6");
-        let member7 = document.getElementById("member7");
-        let member8 = document.getElementById("member8");
-        let member9 = document.getElementById("member9");
-        let member10 = document.getElementById("member10");
-        const array = [
-          0,
-          member1,
-          member2,
-          member3,
-          member4,
-          member5,
-          member6,
-          member7,
-          member8,
-          member9,
-          member10,
-        ];
+      socket.on("removeRoomMember", (name) => {
+        removeRoomMember(name);
+      });
 
-        let text = array[num].textContent; // 要素のtextContentを取得
-        let newText = text.replace(`${name},`, ""); // textContentを書き換え
-        array[num].textContent = newText; // 新しいtextContentを要素にセット
+      socket.on("dupCut", (roomNum) => {
+        dupCut(roomNum);
+      });
+
+      socket.on("view change", (num) => {
+        viewChange(num);
+      });
+
+      function dupCut(roomNum) {
+        let dupLog = document.getElementById(`log${roomNum}`);
+        let dupSelect = document.getElementById("roomSelect");
+        dupLog.style.display = "none";
+        dupSelect.options[roomNum].remove();
+      }
+
+      function removeRoomMember(name) {
+        let liElements = document.querySelectorAll("#" + "myMember" + " > *");
+        liElements.forEach(function (li) {
+          if (li.textContent === name) {
+            li.remove();
+          }
+        });
+      }
+
+      function removeMember(name, num) {
+        let memberList = document.getElementById(`member${num}`);
+        let liElements = memberList.querySelectorAll("li");
+        liElements.forEach(function (li) {
+          if (li.textContent === name) {
+            li.remove();
+          }
+        });
       }
 
       function addLogin(msg) {
@@ -462,7 +438,7 @@
       function addMessage(msg, postTime) {
         let item = document.createElement("li");
         let posttime = new Date().toLocaleString();
-        item.innerText = `${msg} \n ${postTime}`;
+        item.innerText = `${msg}      [${postTime}]`;
         mainLog.appendChild(item);
         let mainChat = document.getElementById("mainChat");
         let bottom = mainChat.scrollHeight - mainChat.clientHeight;
@@ -477,9 +453,6 @@
         let member5 = document.getElementById("member5");
         let member6 = document.getElementById("member6");
         let member7 = document.getElementById("member7");
-        let member8 = document.getElementById("member8");
-        let member9 = document.getElementById("member9");
-        let member10 = document.getElementById("member10");
         const memberArray = [
           0,
           member1,
@@ -489,11 +462,10 @@
           member5,
           member6,
           member7,
-          member8,
-          member9,
-          member10,
         ];
-        memberArray[data.roomNum].textContent += data.name + ",";
+        let item = document.createElement("li");
+        item.textContent = data.name;
+        memberArray[data.roomNum].appendChild(item);
       }
 
       function addLog(msg, roomNum, postTime) {
@@ -505,63 +477,51 @@
         let sub5 = document.getElementById("sub5");
         let sub6 = document.getElementById("sub6");
         let sub7 = document.getElementById("sub7");
-        let sub8 = document.getElementById("sub8");
-        let sub9 = document.getElementById("sub9");
-        let sub10 = document.getElementById("sub10");
-        const roomArray = [
-          0,
-          sub1,
-          sub2,
-          sub3,
-          sub4,
-          sub5,
-          sub6,
-          sub7,
-          sub8,
-          sub9,
-          sub10,
-        ];
-        item.innerText = `${msg} \n ${postTime}`;
+        const roomArray = [0, sub1, sub2, sub3, sub4, sub5, sub6, sub7];
+        item.innerText = `${msg}      [${postTime}]`;
         roomArray[roomNum].appendChild(item);
       }
 
-      function addRoomNum(text) {
+      function addRoomMember(name) {
         let id = document.getElementById("roomId");
-        id.innerText = text;
+        let myMember = document.getElementById("myMember");
+        let nameElement = document.createElement("li");
+        id.textContent = "グループチャット";
+        nameElement.innerText = name;
+        myMember.appendChild(nameElement);
       }
 
-      function viewChange() {
-        let selected = document.getElementById("roomSelect").selectedIndex;
-        let cols = document.getElementById("cols");
+      function viewFetch() {
+        socket.emit("room select");
+      }
+
+      function viewChange(num) {
+        let log1 = document.getElementById("log1");
+        let log2 = document.getElementById("log2");
+        let log3 = document.getElementById("log3");
+        let log4 = document.getElementById("log4");
+        let log5 = document.getElementById("log5");
+        let log6 = document.getElementById("log6");
+        let log7 = document.getElementById("log7");
+        const logArray = [0, log1, log2, log3, log4, log5, log6, log7];
+        let selected = document.getElementById("roomSelect").value;
         if (selected > 0) {
-          cols.style.flexDirection = "column";
-          if (selected > 5) {
-            col1.style.width = "50%";
-            col2.style.width = "100%";
-          } else {
-            col1.style.width = "100%";
-            col2.style.width = "50%";
+          for (let z = 1; z < 8; z++) {
+            logArray[z].style.width = "21.9vw";
+            logArray[z].style.display = "none";
           }
-          for (let z = 1; z < 11; z++) {
-            if (z == selected) {
-              document.getElementById(`log${z}`).style.display = "";
-              document.getElementById(`sub${z}`).style.display = "";
-              let child = Array.from(
-                document.getElementById(`sub${z}`).children
-              );
-              for (let a = 0; a < child.length; a++) {
-                child[a].style.display = "";
-              }
-            } else {
-              document.getElementById(`log${z}`).style.display = "none";
-            }
+          logArray[selected].style.display = "";
+          logArray[selected].style.width = "65.7vw";
+          let child = Array.from(
+            document.getElementById(`sub${selected}`).children
+          );
+          for (let a = 0; a < child.length; a++) {
+            child[a].style.display = "";
           }
-        } else if (selected == 0) {
-          cols.style.flexDirection = "row";
-          col1.style.width = "50%";
-          col2.style.width = "50%";
-          for (let z = 1; z < 11; z++) {
-            document.getElementById(`log${z}`).style.display = "";
+        } else {
+          for (let z = 1; z < 8; z++) {
+            logArray[z].style.width = "21.9vw";
+            logArray[z].style.display = "";
             let child = Array.from(document.getElementById(`sub${z}`).children);
             if (child.length > 3) {
               for (let a = 0; a <= child.length - 4; a++) {
@@ -569,13 +529,14 @@
               }
             }
           }
+          logArray[num].style.display = "none";
         }
       }
 
       function latestLog() {
-        let selected = document.getElementById("roomSelect").selectedIndex;
+        let selected = document.getElementById("roomSelect").value;
         if (selected == 0 || selected == null) {
-          for (let z = 1; z < 11; z++) {
+          for (let z = 1; z < 8; z++) {
             //document.getElementById(`log${z}`).style.display = "";
             let child = Array.from(document.getElementById(`sub${z}`).children);
             if (child.length > 3) {
