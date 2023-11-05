@@ -12,7 +12,7 @@
 
       #mainChat {
         height: 88vh;
-        width: 35vw;
+        width: 33.3vw;
         float: left;
         flex: 1;
         overflow: hidden;
@@ -30,18 +30,37 @@
         overflow: hidden;
         background: #a3d1bf;
         position: fixed;
-        left: 35vw;
+        left: 33.3vw;
       }
 
       #myMember {
         list-style-type: none;
         display: flex;
         flex-wrap: wrap;
+        padding: 0;
       }
 
       #myMember > li {
         width: 20%;
         margin: 0px;
+        font-size: 1.2em;
+        text-decoration: none;
+        border: outset 3px #c2cbbd;
+        background-color: #c2cbbd;
+        text-align: center;
+        color: #000000;
+      }
+
+      [id*="member"] {
+        list-style-type: none;
+        display: flex;
+        flex-wrap: wrap;
+        padding: 0;
+      }
+
+      [id*="member"] > li {
+        width: 30%;
+        margin: 0;
         font-size: 1.2em;
         text-decoration: none;
         border: outset 3px #c2cbbd;
@@ -62,11 +81,16 @@
       [id*="log"] {
         border: solid 2px #429475;
         border-radius: 9px;
+        width: 21.9vw;
+      }
+
+      #roomsTop {
+        display: inline-block;
       }
 
       #form {
         height: 12vh;
-        width: 35vw;
+        width: 33.3vw;
         background: rgba(0, 0, 0, 0.15);
         position: fixed;
         bottom: 0;
@@ -103,12 +127,13 @@
       }
 
       [id*="sub"] > ul {
-        padding-left: 0;
+        padding: 0;
       }
 
       [id*="sub"] > li {
         margin: 5px;
-        font-size: 1em;
+        padding: 0;
+        font-size: 1.2em;
         list-style: none;
         border-bottom: 1px solid #000000;
       }
@@ -118,7 +143,7 @@
       }
       /*セレクトボックスのCSS*/
       .selectbox-002 {
-        position: relative;
+        position: absolute;
       }
 
       .selectbox-002::before,
@@ -168,15 +193,10 @@
         outline: 1px solid #2589d0;
       }
       /*全体ログの2列表示に関するCSS*/
-      #col1,
-      #col2,
-      #col3 {
-        width: 33.3vw;
-      }
-
       #cols {
         display: flex;
         flex-direction: row;
+        flex-wrap: wrap;
       }
     </style>
   </head>
@@ -195,9 +215,9 @@
     </section>
     <!--ここから右半分-->
     <section id="subChat">
-      ログ切り替え
+      <h2 id="roomsTop">その他の参加者</h2>
       <label class="selectbox-002">
-        <select id="roomSelect" onchange="viewChange();">
+        <select id="roomSelect" onchange="viewFetch();">
           <option value="0" selected>全体(各ルーム最新3件)</option>
           <option value="1">ルーム1</option>
           <option value="2">ルーム2</option>
@@ -205,56 +225,37 @@
           <option value="4">ルーム4</option>
           <option value="5">ルーム5</option>
           <option value="6">ルーム6</option>
+          <option value="7">ルーム7</option>
         </select>
       </label>
       <div id="cols">
-        <div id="col1">
-          <div id="log1">
-            <div
-              id="member1"
-              style="display: inline-block; _display: inline"
-            ></div>
-            <ul id="sub1" class="sub"></ul>
-          </div>
-          <div id="log2">
-            <div
-              id="member2"
-              style="display: inline-block; _display: inline"
-            ></div>
-            <ul id="sub2" class="sub"></ul>
-          </div>
+        <div id="log1">
+          <ul id="member1"></ul>
+          <ul id="sub1" class="sub"></ul>
         </div>
-        <div id="col2">
-          <div id="log3">
-            <div
-              id="member3"
-              style="display: inline-block; _display: inline"
-            ></div>
-            <ul id="sub3" class="sub"></ul>
-          </div>
-          <div id="log4">
-            <div
-              id="member4"
-              style="display: inline-block; _display: inline"
-            ></div>
-            <ul id="sub4" class="sub"></ul>
-          </div>
+        <div id="log2">
+          <ul id="member2"></ul>
+          <ul id="sub2" class="sub"></ul>
         </div>
-        <div id="col3">
-          <div id="log5">
-            <div
-              id="member5"
-              style="display: inline-block; _display: inline"
-            ></div>
-            <ul id="sub5" class="sub"></ul>
-          </div>
-          <div id="log6">
-            <div
-              id="member6"
-              style="display: inline-block; _display: inline"
-            ></div>
-            <ul id="sub6" class="sub"></ul>
-          </div>
+        <div id="log3">
+          <ul id="member3"></ul>
+          <ul id="sub3" class="sub"></ul>
+        </div>
+        <div id="log4">
+          <ul id="member4"></ul>
+          <ul id="sub4" class="sub"></ul>
+        </div>
+        <div id="log5">
+          <ul id="member5"></ul>
+          <ul id="sub5" class="sub"></ul>
+        </div>
+        <div id="log6">
+          <ul id="member6"></ul>
+          <ul id="sub6" class="sub"></ul>
+        </div>
+        <div id="log7">
+          <ul id="member7"></ul>
+          <ul id="sub7" class="sub"></ul>
         </div>
       </div>
     </section>
@@ -376,6 +377,21 @@
         removeRoomMember(name);
       });
 
+      socket.on("dupCut", (roomNum) => {
+        dupCut(roomNum);
+      });
+
+      socket.on("view change", (num) => {
+        viewChange(num);
+      });
+
+      function dupCut(roomNum) {
+        let dupLog = document.getElementById(`log${roomNum}`);
+        let dupSelect = document.getElementById("roomSelect");
+        dupLog.style.display = "none";
+        dupSelect.options[roomNum].remove();
+      }
+
       function removeRoomMember(name) {
         let liElements = document.querySelectorAll("#" + "myMember" + " > *");
         liElements.forEach(function (li) {
@@ -386,17 +402,13 @@
       }
 
       function removeMember(name, num) {
-        let member1 = document.getElementById("member1");
-        let member2 = document.getElementById("member2");
-        let member3 = document.getElementById("member3");
-        let member4 = document.getElementById("member4");
-        let member5 = document.getElementById("member5");
-        let member6 = document.getElementById("member6");
-        const array = [0, member1, member2, member3, member4, member5, member6];
-
-        let text = array[num].textContent; // 要素のtextContentを取得
-        let newText = text.replace(`${name},`, ""); // textContentを書き換え
-        array[num].textContent = newText; // 新しいtextContentを要素にセット
+        let memberList = document.getElementById(`member${num}`);
+        let liElements = memberList.querySelectorAll("li");
+        liElements.forEach(function (li) {
+          if (li.textContent === name) {
+            li.remove();
+          }
+        });
       }
 
       function addLogin(msg) {
@@ -428,6 +440,7 @@
         let member4 = document.getElementById("member4");
         let member5 = document.getElementById("member5");
         let member6 = document.getElementById("member6");
+        let member7 = document.getElementById("member7");
         const memberArray = [
           0,
           member1,
@@ -436,8 +449,11 @@
           member4,
           member5,
           member6,
+          member7,
         ];
-        memberArray[data.roomNum].textContent += data.name + ",";
+        let item = document.createElement("li");
+        item.textContent = data.name;
+        memberArray[data.roomNum].appendChild(item);
       }
 
       function addLog(msg, roomNum) {
@@ -448,7 +464,8 @@
         let sub4 = document.getElementById("sub4");
         let sub5 = document.getElementById("sub5");
         let sub6 = document.getElementById("sub6");
-        const roomArray = [0, sub1, sub2, sub3, sub4, sub5, sub6];
+        let sub7 = document.getElementById("sub7");
+        const roomArray = [0, sub1, sub2, sub3, sub4, sub5, sub6, sub7];
         item.innerText = `${msg}`;
         roomArray[roomNum].appendChild(item);
       }
@@ -462,61 +479,40 @@
         myMember.appendChild(nameElement);
       }
 
-      function viewChange() {
-        let selected = document.getElementById("roomSelect").selectedIndex;
-        let cols = document.getElementById("cols");
+      function viewFetch() {
+        socket.emit("room select");
+      }
+
+      function viewChange(num) {
+        let log1 = document.getElementById("log1");
+        let log2 = document.getElementById("log2");
+        let log3 = document.getElementById("log3");
+        let log4 = document.getElementById("log4");
+        let log5 = document.getElementById("log5");
+        let log6 = document.getElementById("log6");
+        let log7 = document.getElementById("log7");
+        const logArray = [0, log1, log2, log3, log4, log5, log6, log7];
+        let selected = document.getElementById("roomSelect").value;
         if (selected > 0) {
-          cols.style.flexDirection = "column";
-          if (selected == 1 || selected == 2) {
-            col1.style.width = "100vw";
-            col2.style.width = "0vw";
-            col3.style.width = "0vw";
-          } else if (selected == 3 || selected == 4) {
-            col1.style.width = "0vw";
-            col2.style.width = "100vw";
-            col3.style.width = "0vw";
-          } else {
-            col1.style.width = "0vw";
-            col2.style.width = "0vw";
-            col3.style.width = "100vw";
+          for (let z = 1; z < 8; z++) {
+            logArray[z].style.width = "21.9vw";
+            logArray[z].style.display = "none";
           }
-          for (let z = 1; z < 7; z++) {
-            if (z == selected) {
-              document.getElementById(`log${z}`).style.display = "";
-              document.getElementById(`sub${z}`).style.display = "";
-              let child = Array.from(
-                document.getElementById(`sub${z}`).children
-              );
-              for (let a = 0; a < child.length; a++) {
-                child[a].style.display = "";
-              }
-            } else {
-              document.getElementById(`log${z}`).style.display = "none";
-            }
+          logArray[selected].style.display = "";
+          logArray[selected].style.width = "65.7vw";
+        } else {
+          for (let z = 1; z < 8; z++) {
+            logArray[z].style.width = "21.9vw";
+            logArray[z].style.display = "";
           }
-        } else if (selected == 0) {
-          cols.style.flexDirection = "row";
-          col1.style.width = "33.3vw";
-          col2.style.width = "33.3vw";
-          col3.style.width = "33.3vw";
-          /*col1.style.width = "50%";
-          col2.style.width = "50%";*/
-          for (let z = 1; z < 7; z++) {
-            document.getElementById(`log${z}`).style.display = "";
-            let child = Array.from(document.getElementById(`sub${z}`).children);
-            if (child.length > 3) {
-              for (let a = 0; a <= child.length - 4; a++) {
-                child[a].style.display = "none";
-              }
-            }
-          }
+          logArray[num].style.display = "none";
         }
       }
 
       function latestLog() {
-        let selected = document.getElementById("roomSelect").selectedIndex;
+        let selected = document.getElementById("roomSelect").value;
         if (selected == 0 || selected == null) {
-          for (let z = 1; z < 7; z++) {
+          for (let z = 1; z < 8; z++) {
             //document.getElementById(`log${z}`).style.display = "";
             let child = Array.from(document.getElementById(`sub${z}`).children);
             if (child.length > 3) {

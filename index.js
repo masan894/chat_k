@@ -50,7 +50,7 @@ io.on("connection", (socket) => {
     //await Post.deleteMany({}); //投稿履歴全削除コマンド
     //await Name.deleteMany({}); //ログイン履歴全削除コマンド
     const historyName = await Name.findOne({ name: name });
-    for (let z = 1; z < 7; z++) {
+    for (let z = 1; z < 8; z++) {
       const logName = await Name.find({
         roomNum: z,
         name: { $ne: name },
@@ -63,13 +63,13 @@ io.on("connection", (socket) => {
       "ページを閉じるか更新するとログアウトします。初回と同じ名前を用いて再ログインしてください。";
     socket.emit("topLog", topText1); //トップ表示1
 
-    /*const topText2 =
-      "投稿はルーム内には実名で、ルーム外には匿名で表示されます。\n外部からは各ルームのメンバーが誰であるかまでしかわかりません。";
-    socket.emit("topLog", topText2); //トップ表示2 */
+    const topText2 =
+      "左側には自分のグループ、右側にはそれ以外のグループのチャットが表示されます。";
+    socket.emit("topLog", topText2); //トップ表示2
 
     //MongoDBを用いたログ読み込み処理
     try {
-      for (let z = 1; z < 7; z++) {
+      for (let z = 1; z < 8; z++) {
         const logPosts = await Post.find({ num: z });
         logPosts.forEach((p) => socket.emit("log message", p));
         socket.emit("latest log fetch");
@@ -81,6 +81,7 @@ io.on("connection", (socket) => {
     //ログイン処理
     if (historyName) {
       if (historyName.state == 0) {
+        socket.emit("dupCut", historyName.roomNum);
         socket.join(historyName.roomNum); //2回目以降の入室処理
         io.to(historyName.roomNum).emit("roomMemberSet", name); //クライアント自身の画面にroomNumを表示させる
         let time = new Date();
@@ -94,7 +95,7 @@ io.on("connection", (socket) => {
           state: 1,
         });
         mainMembers.forEach((p) => socket.emit("roomMemberLogSet", p)); //メインメンバ読み込み
-        io.to(historyName.roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
+        //io.to(historyName.roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
         //既にログインされている場合は名前を追加しないための分岐
         await Name.updateOne(
           { name: name },
@@ -114,9 +115,10 @@ io.on("connection", (socket) => {
     } else {
       const login = 1;
       roomNum += 1;
-      if (roomNum == 7) {
+      if (roomNum == 8) {
         roomNum = 1;
       }
+      socket.emit("dupCut", roomNum);
       let n = await Name.create({ name: name, roomNum: roomNum, state: login }); // save data to database
       socket.join(roomNum); //1回目の入室処理
       io.emit("changeMember", n); //名前送信時の処理
@@ -132,11 +134,11 @@ io.on("connection", (socket) => {
         state: 1,
       });
       mainMembers.forEach((p) => socket.emit("roomMemberLogSet", p)); //メインメンバ読み込み
-      io.to(roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
+      //io.to(roomNum).emit("login", { name, timeText }); //部屋のメンバーにログインを通知
       console.log(`${name} connected to room ${roomNum}`);
     }
 
-    //以下、チャット送信時の処理
+    //チャット送信時の処理
     socket.on("chat message", async (text) => {
       try {
         let time = new Date();
@@ -158,17 +160,25 @@ io.on("connection", (socket) => {
         console.error(e);
       }
     });
+
+    //セレクトボックス切り替え時の処理
+    socket.on("room select", async () => {
+      const nameData = await Name.findOne({ name: name });
+      let num = nameData.roomNum;
+      socket.emit("view change", num);
+    });
+
     //切断時の処理
     socket.on("disconnect", async () => {
-      let postData = await Name.findOne({ name: name });
-      let num = postData.roomNum;
+      let nameData = await Name.findOne({ name: name });
+      let num = nameData.roomNum;
       console.log(`${name} disconnected from ${num}`);
       let time = new Date();
       let timeGMT = time.getTime();
       let timeText = timeGMT + 32400000;
 
-      if (postData.state == 1) {
-        io.to(num).emit("logout", { name, timeText }); //部屋のメンバーに退室を通知
+      if (nameData.state == 1) {
+        //io.to(num).emit("logout", { name, timeText }); //部屋のメンバーに退室を通知
         io.emit("removeMember", { name, num });
         io.to(num).emit("removeRoomMember", name);
         /*const logName = await Name.find({ roomNum: num, name: { $ne: name } });
