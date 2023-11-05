@@ -12,7 +12,7 @@
 
       #mainChat {
         height: 88vh;
-        width: 33.3vw;
+        width: 35vw;
         float: left;
         flex: 1;
         overflow: hidden;
@@ -30,7 +30,29 @@
         overflow: hidden;
         background: #a3d1bf;
         position: fixed;
-        left: 33.3vw;
+        left: 35vw;
+      }
+
+      #myMember {
+        list-style-type: none;
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      #myMember > li {
+        width: 20%;
+        margin: 0px;
+        font-size: 1.2em;
+        text-decoration: none;
+        border: outset 3px #c2cbbd;
+        background-color: #c2cbbd;
+        text-align: center;
+        color: #000000;
+      }
+
+      #myMember > li:first-child {
+        border: outset 3px #87bccc;
+        background-color: #87bccc;
       }
 
       #subChat:hover {
@@ -44,7 +66,7 @@
 
       #form {
         height: 12vh;
-        width: 33.3vw;
+        width: 35vw;
         background: rgba(0, 0, 0, 0.15);
         position: fixed;
         bottom: 0;
@@ -86,7 +108,7 @@
 
       [id*="sub"] > li {
         margin: 5px;
-        font-size: 1.2em;
+        font-size: 1em;
         list-style: none;
         border-bottom: 1px solid #000000;
       }
@@ -160,10 +182,11 @@
   </head>
   <body id="body">
     <section id="mainChat">
-      <h1 id="roomId">
+      <h2 id="roomId">
         k-chat
         データ読み込み中...(しばらく待っても動かない場合はページを更新してください)
-      </h1>
+      </h2>
+      <ul id="myMember"></ul>
       <ul id="mainLog"></ul>
       <form id="form" action="">
         <textarea id="mainTextArea" rows="3"></textarea
@@ -187,67 +210,49 @@
       <div id="cols">
         <div id="col1">
           <div id="log1">
-            <h2>
-              1:
-              <div
-                id="member1"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
+            <div
+              id="member1"
+              style="display: inline-block; _display: inline"
+            ></div>
             <ul id="sub1" class="sub"></ul>
           </div>
           <div id="log2">
-            <h2>
-              2:
-              <div
-                id="member2"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
+            <div
+              id="member2"
+              style="display: inline-block; _display: inline"
+            ></div>
             <ul id="sub2" class="sub"></ul>
           </div>
         </div>
         <div id="col2">
           <div id="log3">
-            <h2>
-              3:
-              <div
-                id="member3"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
+            <div
+              id="member3"
+              style="display: inline-block; _display: inline"
+            ></div>
             <ul id="sub3" class="sub"></ul>
           </div>
           <div id="log4">
-            <h2>
-              4:
-              <div
-                id="member4"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
+            <div
+              id="member4"
+              style="display: inline-block; _display: inline"
+            ></div>
             <ul id="sub4" class="sub"></ul>
           </div>
         </div>
         <div id="col3">
           <div id="log5">
-            <h2>
-              5:
-              <div
-                id="member5"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
+            <div
+              id="member5"
+              style="display: inline-block; _display: inline"
+            ></div>
             <ul id="sub5" class="sub"></ul>
           </div>
           <div id="log6">
-            <h2>
-              6:
-              <div
-                id="member6"
-                style="display: inline-block; _display: inline"
-              ></div>
-            </h2>
+            <div
+              id="member6"
+              style="display: inline-block; _display: inline"
+            ></div>
             <ul id="sub6" class="sub"></ul>
           </div>
         </div>
@@ -336,7 +341,7 @@
           minute = "0" + String(minute);
         }
         let localTime = String(hour) + ":" + String(minute);
-        addMessage("[" + data.name + "] " + data.msg, localTime);
+        addMessage(data.msg, localTime);
       });
 
       socket.on("log message", (data) => {
@@ -355,13 +360,30 @@
         changeMember(data);
       });
 
-      socket.on("roomNumSet", (clientText) => {
-        addRoomNum(clientText);
+      socket.on("roomMemberSet", (name) => {
+        addRoomMember(name);
+      });
+
+      socket.on("roomMemberLogSet", (data) => {
+        addRoomMember(data.name);
       });
 
       socket.on("removeMember", (data) => {
         removeMember(data.name, data.num);
       });
+
+      socket.on("removeRoomMember", (name) => {
+        removeRoomMember(name);
+      });
+
+      function removeRoomMember(name) {
+        let liElements = document.querySelectorAll("#" + "myMember" + " > *");
+        liElements.forEach(function (li) {
+          if (li.textContent === name) {
+            li.remove();
+          }
+        });
+      }
 
       function removeMember(name, num) {
         let member1 = document.getElementById("member1");
@@ -431,9 +453,13 @@
         roomArray[roomNum].appendChild(item);
       }
 
-      function addRoomNum(text) {
+      function addRoomMember(name) {
         let id = document.getElementById("roomId");
-        id.innerText = text;
+        let myMember = document.getElementById("myMember");
+        let nameElement = document.createElement("li");
+        id.textContent = "グループチャット";
+        nameElement.innerText = name;
+        myMember.appendChild(nameElement);
       }
 
       function viewChange() {
