@@ -84,9 +84,6 @@ io.on("connection", (socket) => {
         socket.emit("dupCut", historyName.roomNum);
         socket.join(historyName.roomNum); //2回目以降の入室処理
         io.to(historyName.roomNum).emit("roomMemberSet", name); //クライアント自身の画面にroomNumを表示させる
-        let time = new Date();
-        let timeGMT = time.getTime();
-        let timeText = timeGMT + 32400000;
         const mainPosts = await Post.find({ num: historyName.roomNum });
         mainPosts.forEach((p) => socket.emit("chat message", p)); //メインログ読み込み
         const mainMembers = await Name.find({
@@ -123,9 +120,6 @@ io.on("connection", (socket) => {
       socket.join(roomNum); //1回目の入室処理
       io.emit("changeMember", n); //名前送信時の処理
       io.to(roomNum).emit("roomMemberSet", name); //クライアント自身の画面にroomNumを表示させる
-      let time = new Date();
-      let timeGMT = time.getTime();
-      let timeText = timeGMT + 32400000;
       const mainPosts = await Post.find({ num: roomNum });
       mainPosts.forEach((p) => socket.emit("chat message", p)); //メインログ読み込み
       const mainMembers = await Name.find({
@@ -154,7 +148,7 @@ io.on("connection", (socket) => {
           postTime: postTime,
         }); // save data to database
         io.to(num).emit("chat message", { msg, postTime }); //ルームチャットに送信
-        io.emit("log message2", { msg, num }); //全体チャットに送信
+        io.emit("log message2", { msg, num, postTime }); //全体チャットに送信
         io.emit("latest log fetch");
       } catch (e) {
         console.error(e);

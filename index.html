@@ -346,7 +346,13 @@
       });
 
       socket.on("log message", (data) => {
-        addLog(data.msg, data.num);
+        let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
+        let minute = Math.floor(data.postTime / 1000 / 60) % 60;
+        if (minute < 10) {
+          minute = "0" + String(minute);
+        }
+        let localTime = String(hour) + ":" + String(minute);
+        addLog(data.msg, data.num, localTime);
       });
 
       socket.on("latest log fetch", () => {
@@ -354,7 +360,13 @@
       });
 
       socket.on("log message2", (data) => {
-        addLog(data.msg, data.num);
+        let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
+        let minute = Math.floor(data.postTime / 1000 / 60) % 60;
+        if (minute < 10) {
+          minute = "0" + String(minute);
+        }
+        let localTime = String(hour) + ":" + String(minute);
+        addLog(data.msg, data.num, localTime);
       });
 
       socket.on("changeMember", (data) => {
@@ -426,7 +438,7 @@
       function addMessage(msg, postTime) {
         let item = document.createElement("li");
         let posttime = new Date().toLocaleString();
-        item.innerText = `${msg} \n ${postTime}`;
+        item.innerText = `${msg}      [${postTime}]`;
         mainLog.appendChild(item);
         let mainChat = document.getElementById("mainChat");
         let bottom = mainChat.scrollHeight - mainChat.clientHeight;
@@ -456,7 +468,7 @@
         memberArray[data.roomNum].appendChild(item);
       }
 
-      function addLog(msg, roomNum) {
+      function addLog(msg, roomNum, postTime) {
         let item = document.createElement("li");
         let sub1 = document.getElementById("sub1");
         let sub2 = document.getElementById("sub2");
@@ -466,7 +478,7 @@
         let sub6 = document.getElementById("sub6");
         let sub7 = document.getElementById("sub7");
         const roomArray = [0, sub1, sub2, sub3, sub4, sub5, sub6, sub7];
-        item.innerText = `${msg}`;
+        item.innerText = `${msg}      [${postTime}]`;
         roomArray[roomNum].appendChild(item);
       }
 
@@ -500,10 +512,22 @@
           }
           logArray[selected].style.display = "";
           logArray[selected].style.width = "65.7vw";
+          let child = Array.from(
+            document.getElementById(`sub${selected}`).children
+          );
+          for (let a = 0; a < child.length; a++) {
+            child[a].style.display = "";
+          }
         } else {
           for (let z = 1; z < 8; z++) {
             logArray[z].style.width = "21.9vw";
             logArray[z].style.display = "";
+            let child = Array.from(document.getElementById(`sub${z}`).children);
+            if (child.length > 3) {
+              for (let a = 0; a <= child.length - 4; a++) {
+                child[a].style.display = "none";
+              }
+            }
           }
           logArray[num].style.display = "none";
         }
