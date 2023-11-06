@@ -2,7 +2,25 @@
 <html>
   <head>
     <title>k-chat</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
     <style>
+      .material-symbols-outlined {
+        font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 48;
+        display: none;
+        padding: 3px;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        margin-right: 5px;
+        border-radius: 10px;
+      }
+
+      .roomNum {
+        font-size: 1.6em;
+      }
+
       body {
         margin: 0;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
@@ -15,19 +33,15 @@
         width: 33.3vw;
         float: left;
         flex: 1;
-        overflow: hidden;
-        background: #cdc1b2;
-      }
-
-      #mainChat:hover {
         overflow-y: auto;
+        background: #cdc1b2;
       }
 
       #subChat {
         height: 100vh;
         width: 66.6vw;
         flex: 1;
-        overflow: hidden;
+        overflow-y: auto;
         background: #a3d1bf;
         position: fixed;
         left: 33.3vw;
@@ -41,7 +55,7 @@
       }
 
       #myMember > li {
-        width: 20%;
+        width: 25%;
         margin: 0px;
         font-size: 1.2em;
         text-decoration: none;
@@ -49,6 +63,7 @@
         background-color: #c2cbbd;
         text-align: center;
         color: #000000;
+        border-radius: 10px;
       }
 
       [id*="member"] {
@@ -61,12 +76,13 @@
       [id*="member"] > li {
         width: 30%;
         margin: 0;
-        font-size: 1.2em;
+        font-size: 1em;
         text-decoration: none;
         border: outset 3px #c2cbbd;
         background-color: #c2cbbd;
         text-align: center;
         color: #000000;
+        border-radius: 10px;
       }
 
       #myMember > li:first-child {
@@ -74,14 +90,12 @@
         background-color: #87bccc;
       }
 
-      #subChat:hover {
-        overflow-y: auto;
-      }
-
       [id*="log"] {
         border: solid 2px #429475;
         border-radius: 9px;
-        width: 21.9vw;
+        width: 21.6vw;
+        height: 44.5vh;
+        overflow-y: auto;
       }
 
       #roomsTop {
@@ -133,9 +147,14 @@
       [id*="sub"] > li {
         margin: 5px;
         padding: 0;
+        position: relative;
         font-size: 1.2em;
         list-style: none;
         border-bottom: 1px solid #000000;
+      }
+
+      [id*="sub"] > li:hover .material-symbols-outlined {
+        display: inline-block;
       }
 
       [id*="sub"] > li:last-child {
@@ -230,30 +249,37 @@
       </label>
       <div id="cols">
         <div id="log1">
+          <span class="roomNum">1</span>
           <ul id="member1"></ul>
           <ul id="sub1" class="sub"></ul>
         </div>
         <div id="log2">
+          <span class="roomNum">2</span>
           <ul id="member2"></ul>
           <ul id="sub2" class="sub"></ul>
         </div>
         <div id="log3">
+          <span class="roomNum">3</span>
           <ul id="member3"></ul>
           <ul id="sub3" class="sub"></ul>
         </div>
         <div id="log4">
+          <span class="roomNum">4</span>
           <ul id="member4"></ul>
           <ul id="sub4" class="sub"></ul>
         </div>
         <div id="log5">
+          <span class="roomNum">5</span>
           <ul id="member5"></ul>
           <ul id="sub5" class="sub"></ul>
         </div>
         <div id="log6">
+          <span class="roomNum">6</span>
           <ul id="member6"></ul>
           <ul id="sub6" class="sub"></ul>
         </div>
         <div id="log7">
+          <span class="roomNum">7</span>
           <ul id="member7"></ul>
           <ul id="sub7" class="sub"></ul>
         </div>
@@ -346,13 +372,7 @@
       });
 
       socket.on("log message", (data) => {
-        let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
-        let minute = Math.floor(data.postTime / 1000 / 60) % 60;
-        if (minute < 10) {
-          minute = "0" + String(minute);
-        }
-        let localTime = String(hour) + ":" + String(minute);
-        addLog(data.msg, data.num, localTime);
+        addLog(data.msg, data.num);
       });
 
       socket.on("latest log fetch", () => {
@@ -360,13 +380,7 @@
       });
 
       socket.on("log message2", (data) => {
-        let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
-        let minute = Math.floor(data.postTime / 1000 / 60) % 60;
-        if (minute < 10) {
-          minute = "0" + String(minute);
-        }
-        let localTime = String(hour) + ":" + String(minute);
-        addLog(data.msg, data.num, localTime);
+        addLog(data.msg, data.num);
       });
 
       socket.on("changeMember", (data) => {
@@ -397,6 +411,20 @@
         viewChange(num);
       });
 
+      socket.on("reply sub emit", ({ replyNum, replyMsg }) => {
+        replySubLog(replyNum, replyMsg);
+      });
+
+      socket.on("reply main emit", ({ replyNum, replyMsg, postTime }) => {
+        let hour = Math.floor(postTime / 1000 / 60 / 60) % 24;
+        let minute = Math.floor(postTime / 1000 / 60) % 60;
+        if (minute < 10) {
+          minute = "0" + String(minute);
+        }
+        let localTime = String(hour) + ":" + String(minute);
+        replyMainLog(replyNum, replyMsg, localTime);
+      });
+
       function dupCut(roomNum) {
         let dupLog = document.getElementById(`log${roomNum}`);
         let dupSelect = document.getElementById("roomSelect");
@@ -425,20 +453,22 @@
 
       function addLogin(msg) {
         let item = document.createElement("li");
+        let mainLog = document.getElementById("mainLog");
         item.innerText = msg;
         mainLog.appendChild(item);
       }
 
       function addLogout(msg) {
         let item = document.createElement("li");
+        let mainLog = document.getElementById("mainLog");
         item.innerText = msg;
         mainLog.appendChild(item);
       }
 
-      function addMessage(msg, postTime) {
+      function addMessage(msg, localTime) {
         let item = document.createElement("li");
-        let posttime = new Date().toLocaleString();
-        item.innerText = `${msg}      [${postTime}]`;
+        item.innerText = `${msg}      [${localTime}]`;
+        let mainLog = document.getElementById("mainLog");
         mainLog.appendChild(item);
         let mainChat = document.getElementById("mainChat");
         let bottom = mainChat.scrollHeight - mainChat.clientHeight;
@@ -470,6 +500,59 @@
 
       function addLog(msg, roomNum, postTime) {
         let item = document.createElement("li");
+        let thumb = document.createElement("span");
+        let reply = document.createElement("span");
+        let sub1 = document.getElementById("sub1");
+        let sub2 = document.getElementById("sub2");
+        let sub3 = document.getElementById("sub3");
+        let sub4 = document.getElementById("sub4");
+        let sub5 = document.getElementById("sub5");
+        let sub6 = document.getElementById("sub6");
+        let sub7 = document.getElementById("sub7");
+        let log1 = document.getElementById("log1");
+        let log2 = document.getElementById("log2");
+        let log3 = document.getElementById("log3");
+        let log4 = document.getElementById("log4");
+        let log5 = document.getElementById("log5");
+        let log6 = document.getElementById("log6");
+        let log7 = document.getElementById("log7");
+        const roomArray = [0, sub1, sub2, sub3, sub4, sub5, sub6, sub7];
+        const logArray = [0, log1, log2, log3, log4, log5, log6, log7];
+        item.innerText = `${msg}`;
+        thumb.classList.add("material-symbols-outlined");
+        reply.classList.add("material-symbols-outlined");
+        thumb.textContent = "thumb_up";
+        reply.textContent = "reply";
+        thumb.addEventListener("click", function () {
+          thumbUp();
+        });
+        reply.addEventListener("click", function () {
+          replyLog();
+        });
+        roomArray[roomNum].appendChild(item);
+        roomArray[roomNum].lastElementChild.appendChild(thumb);
+        roomArray[roomNum].lastElementChild.insertBefore(reply, null);
+        //スクロール
+        let bottom =
+          logArray[roomNum].scrollHeight - logArray[roomNum].clientHeight;
+        logArray[roomNum].scrollTop = bottom;
+      }
+
+      function replyLog() {
+        let replyPrompt = window.prompt("返信を入力してください");
+        let replyMsg = replyPrompt.replace(
+          /([ \u3000]{3,})|(\r\n|\r|\n){3,}/g,
+          "  "
+        );
+        let roomNumSpan = event.currentTarget.closest(".roomNum").textContent;
+        console.log(roomNumSpan);
+        /*let replyNum = Number(roomNumSpan.innerHTML);
+        alert(replyNum);
+        socket.emit("reply", { replyNum, replyMsg });*/
+      }
+
+      function replySubLog(replyNum, replyMsg) {
+        let item = document.createElement("li");
         let sub1 = document.getElementById("sub1");
         let sub2 = document.getElementById("sub2");
         let sub3 = document.getElementById("sub3");
@@ -478,8 +561,26 @@
         let sub6 = document.getElementById("sub6");
         let sub7 = document.getElementById("sub7");
         const roomArray = [0, sub1, sub2, sub3, sub4, sub5, sub6, sub7];
-        item.innerText = `${msg}      [${postTime}]`;
-        roomArray[roomNum].appendChild(item);
+        item.textContent = `${replyMsg}`;
+        roomArray[replyNum].appendChild(item);
+      }
+
+      function replyMainLog(replyNum, replyMsg, localTime) {
+        let item = document.createElement("li");
+        item.textContent = `[ルーム${replyNum}]${replyMsg}      [${localTime}]`;
+        let mainLog = document.getElementById("mainLog");
+        mainLog.appendChild(item);
+        let bottom = mainChat.scrollHeight - mainChat.clientHeight;
+        mainChat.scrollTop = bottom;
+      }
+
+      function thumbUp() {
+        alert("thumbs up!");
+        /*// ボタンをクリックした要素を取得
+        let clickedElement = event.target;
+        // 親要素を取得
+        let parent = clickedElement.parentElement;
+        alert(parent.innerText);*/
       }
 
       function addRoomMember(name) {
@@ -507,11 +608,13 @@
         let selected = document.getElementById("roomSelect").value;
         if (selected > 0) {
           for (let z = 1; z < 8; z++) {
-            logArray[z].style.width = "21.9vw";
+            logArray[z].style.width = "21.6vw";
+            logArray[z].style.height = "44.5vh";
             logArray[z].style.display = "none";
           }
           logArray[selected].style.display = "";
           logArray[selected].style.width = "65.7vw";
+          logArray[selected].style.height = "89vh";
           let child = Array.from(
             document.getElementById(`sub${selected}`).children
           );
@@ -520,7 +623,8 @@
           }
         } else {
           for (let z = 1; z < 8; z++) {
-            logArray[z].style.width = "21.9vw";
+            logArray[z].style.width = "21.6vw";
+            logArray[z].style.height = "44.5vh";
             logArray[z].style.display = "";
             let child = Array.from(document.getElementById(`sub${z}`).children);
             if (child.length > 3) {

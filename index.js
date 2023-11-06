@@ -27,7 +27,7 @@ const options = {
 
 // 保存するデータの形を定義する（データの種類が複数ある場合はそれぞれ１つずつ定義する）
 const postSchema = new mongoose.Schema(
-  { name: String, msg: String, num: Number, postTime: String },
+  { name: String, msg: String, num: Number, postTime: String, fav: Number },
   options
 );
 // その形式のデータを保存・読み出しするために必要なモデルを作る
@@ -146,9 +146,10 @@ io.on("connection", (socket) => {
           msg: msg,
           num: num,
           postTime: postTime,
+          fav: 0,
         }); // save data to database
         io.to(num).emit("chat message", { msg, postTime }); //ルームチャットに送信
-        io.emit("log message2", { msg, num, postTime }); //全体チャットに送信
+        io.emit("log message2", { msg, num }); //全体チャットに送信
         io.emit("latest log fetch");
       } catch (e) {
         console.error(e);
@@ -160,6 +161,22 @@ io.on("connection", (socket) => {
       const nameData = await Name.findOne({ name: name });
       let num = nameData.roomNum;
       socket.emit("view change", num);
+    });
+
+    //リプライ受信時の処理
+    socket.on("reply", async ({ replyNum, replyMsg }) => {
+      let time = new Date();
+      let timeGMT = time.getTime();
+      let postTime = timeGMT + 32400000;
+      const p = await Post.create({
+        name: replyNum,
+        msg: replyMsg,
+        num: replyNum,
+        postTime: postTime,
+        fav: 0,
+      }); // save data to database
+      io.emit("reply sub emit", { replyNum, replyMsg });
+      io.to(replyNum).emit("reply main emit", { replyNum, replyMsg, postTime });
     });
 
     //切断時の処理
