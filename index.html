@@ -514,8 +514,8 @@
           let green = parseFloat(colorText.replace(/rgb|0,|,0|\(|\)| /g, ""));
           //サイズ変更
           let size = Number(sizeText.replace("px", ""));
-          size += size + 0.4 * fav;
-          let newSizeText = String(size) + "px";
+          newSize += size + 0.6 * fav;
+          let newSizeText = String(newSize) + "px";
           //色変更
           green = 150;
           let greenText = String(green);
@@ -640,8 +640,8 @@
           let green = parseFloat(colorText.replace(/rgb|0,|,0|\(|\)| /g, ""));
           //サイズ変更
           let size = Number(sizeText.replace("px", ""));
-          size += size + 0.4 * fav;
-          let newSizeText = String(size) + "px";
+          newSize += size + 0.6 * fav;
+          let newSizeText = String(newSize) + "px";
           //色変更
           green = 150;
           let greenText = String(green);
