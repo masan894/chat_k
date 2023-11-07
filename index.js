@@ -180,6 +180,7 @@ io.on("connection", (socket) => {
       }); // save data to database
       io.emit("reply sub emit", { replyRoomNum, replyMsg });
       io.to(replyRoomNum).emit("reply main emit", replyMsg);
+      io.emit("latest log fetch");
     });
 
     //ふぁぼ受け取りの処理
