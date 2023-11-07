@@ -67,6 +67,10 @@ io.on("connection", (socket) => {
       "左側には自分のグループ、右側にはそれ以外のグループのチャットが表示されます。";
     socket.emit("topLog", topText2); //トップ表示2
 
+    const topText3 =
+      "メッセージにカーソルを当てるとリアクション/リプライメニューが表示されます。";
+    socket.emit("topLog", topText3); //トップ表示3
+
     try {
       for (let z = 1; z < 8; z++) {
         const logPosts = await Post.find({ num: z });
@@ -147,7 +151,7 @@ io.on("connection", (socket) => {
           postTime: postTime,
           fav: 0,
         }); // save data to database
-        io.to(num).emit("chat message2", { msg, postTime }); //ルームチャットに送信
+        io.to(num).emit("chat message2", msg); //ルームチャットに送信
         io.emit("log message2", { msg, num }); //全体チャットに送信
         io.emit("latest log fetch");
       } catch (e) {
@@ -175,24 +179,33 @@ io.on("connection", (socket) => {
         fav: 0,
       }); // save data to database
       io.emit("reply sub emit", { replyRoomNum, replyMsg });
-      io.to(replyRoomNum).emit("reply main emit", {
-        replyRoomNum,
-        replyMsg,
-        postTime,
-      });
+      io.to(replyRoomNum).emit("reply main emit", replyMsg);
     });
 
     //ふぁぼ受け取りの処理
-    socket.on("fav count up", async (text) => {
-      let favedPosts = await Post.find({ msg: text });
-      if (favedPosts[0].fav < 10) {
-        await Post.updateOne(
+    socket.on("fav count up sub", async (text) => {
+      let favedPost = await Post.findOne({ msg: text });
+      if (favedPost.fav < 10) {
+        await Post.updateMany(
           { msg: text },
           { $inc: { fav: 1 } },
           { runValidator: true }
         );
         io.emit("fav sub emit", text);
-        io.to(favedPosts[i].num).emit("fav main emit", text);
+        io.to(favedPost.num).emit("fav main emit", text);
+      }
+    });
+
+    socket.on("fav count up main", async (text) => {
+      let favedPost = await Post.findOne({ msg: text });
+      if (favedPost.fav < 10) {
+        await Post.updateMany(
+          { msg: text },
+          { $inc: { fav: 1 } },
+          { runValidator: true }
+        );
+        io.emit("fav sub emit", text);
+        io.to(favedPost.num).emit("fav main emit", text);
       }
     });
 
