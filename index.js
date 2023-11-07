@@ -27,7 +27,7 @@ const options = {
 
 // 保存するデータの形を定義する（データの種類が複数ある場合はそれぞれ１つずつ定義する）
 const postSchema = new mongoose.Schema(
-  { name: String, msg: String, num: Number, postTime: String },
+  { name: String, msg: String, num: Number, postTime: String, fav: Number },
   options
 );
 // その形式のデータを保存・読み出しするために必要なモデルを作る
@@ -67,11 +67,14 @@ io.on("connection", (socket) => {
       "左側には自分のグループ、右側にはそれ以外のグループのチャットが表示されます。";
     socket.emit("topLog", topText2); //トップ表示2
 
-    //MongoDBを用いたログ読み込み処理
+    const topText3 =
+      "メッセージにカーソルを当てるとリアクション/リプライメニューが表示されます。";
+    socket.emit("topLog", topText3); //トップ表示3
+
     try {
       for (let z = 1; z < 8; z++) {
         const logPosts = await Post.find({ num: z });
-        logPosts.forEach((p) => socket.emit("log message", p));
+        logPosts.forEach((p) => socket.emit("log message", p)); //サブログ読み込み
         socket.emit("latest log fetch");
       }
     } catch (e) {
@@ -146,9 +149,10 @@ io.on("connection", (socket) => {
           msg: msg,
           num: num,
           postTime: postTime,
+          fav: 0,
         }); // save data to database
-        io.to(num).emit("chat message", { msg, postTime }); //ルームチャットに送信
-        io.emit("log message2", { msg, num, postTime }); //全体チャットに送信
+        io.to(num).emit("chat message2", msg); //ルームチャットに送信
+        io.emit("log message2", { msg, num }); //全体チャットに送信
         io.emit("latest log fetch");
       } catch (e) {
         console.error(e);
@@ -160,6 +164,49 @@ io.on("connection", (socket) => {
       const nameData = await Name.findOne({ name: name });
       let num = nameData.roomNum;
       socket.emit("view change", num);
+    });
+
+    //リプライ受信時の処理
+    socket.on("reply", async ({ replyRoomNum, replyMsg }) => {
+      let time = new Date();
+      let timeGMT = time.getTime();
+      let postTime = timeGMT + 32400000;
+      const p = await Post.create({
+        name: replyRoomNum,
+        msg: replyMsg,
+        num: replyRoomNum,
+        postTime: postTime,
+        fav: 0,
+      }); // save data to database
+      io.emit("reply sub emit", { replyRoomNum, replyMsg });
+      io.to(replyRoomNum).emit("reply main emit", replyMsg);
+    });
+
+    //ふぁぼ受け取りの処理
+    socket.on("fav count up sub", async (text) => {
+      let favedPost = await Post.findOne({ msg: text });
+      if (favedPost.fav < 10) {
+        await Post.updateMany(
+          { msg: text },
+          { $inc: { fav: 1 } },
+          { runValidator: true }
+        );
+        io.emit("fav sub emit", text);
+        io.to(favedPost.num).emit("fav main emit", text);
+      }
+    });
+
+    socket.on("fav count up main", async (text) => {
+      let favedPost = await Post.findOne({ msg: text });
+      if (favedPost.fav < 10) {
+        await Post.updateMany(
+          { msg: text },
+          { $inc: { fav: 1 } },
+          { runValidator: true }
+        );
+        io.emit("fav sub emit", text);
+        io.to(favedPost.num).emit("fav main emit", text);
+      }
     });
 
     //切断時の処理
