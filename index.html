@@ -653,17 +653,21 @@
 
       function replySub() {
         let replyPrompt = window.prompt("返信を入力してください");
-        let id = document.getElementById("roomId");
-        replyFrom = Number(id.textContent.replace("グループチャット", ""));
-        let roomNumSpan = event.target.closest(".logs").id;
-        let replyRoomNum = Number(roomNumSpan.replace("log", ""));
-        let replyMsg1 = `[ルーム${replyFrom}から]`;
-        let replyMsg2 = replyPrompt.replace(
-          /([ \u3000]{3,})|(\r\n|\r|\n){3,}/g,
-          "  "
-        );
-        let replyMsg = replyMsg1 + replyMsg2;
-        socket.emit("reply", { replyRoomNum, replyMsg });
+        if (replyPrompt == null || replyPrompt == "") {
+          window.alert("メッセージが空白か、使用できない文字が含まれています");
+        } else {
+          let id = document.getElementById("roomId");
+          replyFrom = Number(id.textContent.replace("グループチャット", ""));
+          let roomNumSpan = event.target.closest(".logs").id;
+          let replyRoomNum = Number(roomNumSpan.replace("log", ""));
+          let replyMsg1 = `[ルーム${replyFrom}から]`;
+          let replyMsg2 = replyPrompt.replace(
+            /([ \u3000]{3,})|(\s\n|\s|\n){3,}/g,
+            "  "
+          );
+          let replyMsg = replyMsg1 + replyMsg2;
+          socket.emit("reply", { replyRoomNum, replyMsg });
+        }
       }
 
       function replySubLog(replyNum, replyMsg) {
