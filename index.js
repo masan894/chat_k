@@ -68,7 +68,7 @@ io.on("connection", (socket) => {
     socket.emit("topLog", topText2); //トップ表示2
 
     const topText3 =
-      "メッセージにカーソルを当てるとリアクション/リプライメニューが表示されます。";
+      "メッセージにカーソルを当てるとリアクション/リプライボタンが表示されます。";
     socket.emit("topLog", topText3); //トップ表示3
 
     try {
