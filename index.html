@@ -579,9 +579,13 @@
         thumb.addEventListener("click", function () {
           thumbUpSub();
         });
-        reply.addEventListener("click", function () {
-          replySub();
-        });
+        reply.addEventListener(
+          "click",
+          function () {
+            replySub();
+          },
+          { once: true }
+        );
         roomArray[roomNum].appendChild(item);
         roomArray[roomNum].lastElementChild.appendChild(thumb);
         roomArray[roomNum].lastElementChild.insertBefore(reply, null);
@@ -616,9 +620,13 @@
         reply.classList.add("material-symbols-outlined");
         thumb.textContent = "thumb_up";
         reply.textContent = "reply";
-        thumb.addEventListener("click", function () {
-          thumbUpSub();
-        });
+        thumb.addEventListener(
+          "click",
+          function () {
+            thumbUpSub();
+          },
+          { once: true }
+        );
         reply.addEventListener("click", function () {
           replySub();
         });
