@@ -17,7 +17,7 @@
         border-radius: 10px;
       }
 
-      .roomNum {
+      .roomnum {
         font-size: 1.6em;
       }
 
@@ -131,9 +131,14 @@
 
       #mainLog > li {
         padding: 0.5rem 1rem;
+        position: relative;
         font-size: 1.5em;
         list-style: none;
         border-bottom: 1px solid #000000;
+      }
+
+      #mainLog > li:hover .material-symbols-outlined {
+        display: inline-block;
       }
 
       #mainLog > li:last-child {
@@ -248,38 +253,38 @@
         </select>
       </label>
       <div id="cols">
-        <div id="log1">
-          <span class="roomNum">1</span>
+        <div id="log1" class="logs">
+          <span class="roomnum">1</span>
           <ul id="member1"></ul>
           <ul id="sub1" class="sub"></ul>
         </div>
-        <div id="log2">
-          <span class="roomNum">2</span>
+        <div id="log2" class="logs">
+          <span class="roomnum">2</span>
           <ul id="member2"></ul>
           <ul id="sub2" class="sub"></ul>
         </div>
-        <div id="log3">
-          <span class="roomNum">3</span>
+        <div id="log3" class="logs">
+          <span class="roomnum">3</span>
           <ul id="member3"></ul>
           <ul id="sub3" class="sub"></ul>
         </div>
-        <div id="log4">
-          <span class="roomNum">4</span>
+        <div id="log4" class="logs">
+          <span class="roomnum">4</span>
           <ul id="member4"></ul>
           <ul id="sub4" class="sub"></ul>
         </div>
-        <div id="log5">
-          <span class="roomNum">5</span>
+        <div id="log5" class="logs">
+          <span class="roomnum">5</span>
           <ul id="member5"></ul>
           <ul id="sub5" class="sub"></ul>
         </div>
-        <div id="log6">
-          <span class="roomNum">6</span>
+        <div id="log6" class="logs">
+          <span class="roomnum">6</span>
           <ul id="member6"></ul>
           <ul id="sub6" class="sub"></ul>
         </div>
-        <div id="log7">
-          <span class="roomNum">7</span>
+        <div id="log7" class="logs">
+          <span class="roomnum">7</span>
           <ul id="member7"></ul>
           <ul id="sub7" class="sub"></ul>
         </div>
@@ -368,19 +373,29 @@
           minute = "0" + String(minute);
         }
         let localTime = String(hour) + ":" + String(minute);
-        addMessage(data.msg, localTime);
+        addMessage(data.msg, localTime, data.fav);
+      });
+
+      socket.on("chat message2", (data) => {
+        let hour = Math.floor(data.postTime / 1000 / 60 / 60) % 24;
+        let minute = Math.floor(data.postTime / 1000 / 60) % 60;
+        if (minute < 10) {
+          minute = "0" + String(minute);
+        }
+        let localTime = String(hour) + ":" + String(minute);
+        addMessageNow(data.msg, localTime);
       });
 
       socket.on("log message", (data) => {
-        addLog(data.msg, data.num);
+        addLog(data.msg, data.num, data.fav);
+      });
+
+      socket.on("log message2", (data) => {
+        addLogNow(data.msg, data.num);
       });
 
       socket.on("latest log fetch", () => {
         latestLog();
-      });
-
-      socket.on("log message2", (data) => {
-        addLog(data.msg, data.num);
       });
 
       socket.on("changeMember", (data) => {
@@ -411,18 +426,28 @@
         viewChange(num);
       });
 
-      socket.on("reply sub emit", ({ replyNum, replyMsg }) => {
-        replySubLog(replyNum, replyMsg);
+      socket.on("reply sub emit", ({ replyRoomNum, replyMsg }) => {
+        msg = `[ルーム${replyRoomNum}から]  ${replyMsg}`;
+        addLogNow(msg, replyRoomNum);
       });
 
-      socket.on("reply main emit", ({ replyNum, replyMsg, postTime }) => {
+      socket.on("reply main emit", ({ replyRoomNum, replyMsg, postTime }) => {
         let hour = Math.floor(postTime / 1000 / 60 / 60) % 24;
         let minute = Math.floor(postTime / 1000 / 60) % 60;
         if (minute < 10) {
           minute = "0" + String(minute);
         }
         let localTime = String(hour) + ":" + String(minute);
-        replyMainLog(replyNum, replyMsg, localTime);
+        msg = `[ルーム${replyRoomNum}から]${replyMsg}`;
+        addMessageNow(msg, localTime);
+      });
+
+      socket.on("fav sub emit", (text) => {
+        favSubPlus(text);
+      });
+
+      socket.on("fav main emit", (text) => {
+        favMainPlus(text);
       });
 
       function dupCut(roomNum) {
@@ -465,11 +490,65 @@
         mainLog.appendChild(item);
       }
 
-      function addMessage(msg, localTime) {
+      function addMessageNow(msg, localTime) {
         let item = document.createElement("li");
+        let thumb = document.createElement("span");
+        let reply = document.createElement("span");
         item.innerText = `${msg}      [${localTime}]`;
         let mainLog = document.getElementById("mainLog");
+        thumb.classList.add("material-symbols-outlined");
+        reply.classList.add("material-symbols-outlined");
+        thumb.textContent = "thumb_up";
+        reply.textContent = "reply";
+        thumb.addEventListener("click", function () {
+          thumbUpMain();
+        });
+        reply.addEventListener("click", function () {
+          replyDisable();
+        });
         mainLog.appendChild(item);
+        mainLog.lastElementChild.appendChild(thumb);
+        mainLog.lastElementChild.insertBefore(reply, null);
+        let mainChat = document.getElementById("mainChat");
+        let bottom = mainChat.scrollHeight - mainChat.clientHeight;
+        mainChat.scrollTop = bottom;
+      }
+
+      function addMessage(msg, localTime, fav) {
+        let item = document.createElement("li");
+        let thumb = document.createElement("span");
+        let reply = document.createElement("span");
+        if (fav > 0) {
+          let style = window.getComputedStyle(item);
+          let sizeText = style.getPropertyValue("font-size"); //フォントサイズを取得
+          let colorText = style.getPropertyValue("color");
+          let green = parseFloat(colorText.replace(/rgb|0,|,0|\(|\)| /g, ""));
+          //サイズ変更
+          let size = Number(sizeText.replace("px", ""));
+          size += 0.6 * fav;
+          let newSizeText = String(size) + "px";
+          //色変更
+          green = 150;
+          let greenText = String(green);
+          let newColorText = `rgb(0, ${greenText}, 0)`;
+          item.style.color = newColorText;
+          item.style.fontSize = newSizeText;
+        }
+        item.innerText = `${msg}      [${localTime}]`;
+        let mainLog = document.getElementById("mainLog");
+        thumb.classList.add("material-symbols-outlined");
+        reply.classList.add("material-symbols-outlined");
+        thumb.textContent = "thumb_up";
+        reply.textContent = "reply";
+        thumb.addEventListener("click", function () {
+          thumbUpMain();
+        });
+        reply.addEventListener("click", function () {
+          replyDisable();
+        });
+        mainLog.appendChild(item);
+        mainLog.lastElementChild.appendChild(thumb);
+        mainLog.lastElementChild.insertBefore(reply, null);
         let mainChat = document.getElementById("mainChat");
         let bottom = mainChat.scrollHeight - mainChat.clientHeight;
         mainChat.scrollTop = bottom;
@@ -498,7 +577,7 @@
         memberArray[data.roomNum].appendChild(item);
       }
 
-      function addLog(msg, roomNum, postTime) {
+      function addLogNow(msg, roomNum) {
         let item = document.createElement("li");
         let thumb = document.createElement("span");
         let reply = document.createElement("span");
@@ -524,10 +603,10 @@
         thumb.textContent = "thumb_up";
         reply.textContent = "reply";
         thumb.addEventListener("click", function () {
-          thumbUp();
+          thumbUpSub();
         });
         reply.addEventListener("click", function () {
-          replyLog();
+          replyLogSub();
         });
         roomArray[roomNum].appendChild(item);
         roomArray[roomNum].lastElementChild.appendChild(thumb);
@@ -538,17 +617,75 @@
         logArray[roomNum].scrollTop = bottom;
       }
 
-      function replyLog() {
+      function addLog(msg, roomNum, fav) {
+        let item = document.createElement("li");
+        let thumb = document.createElement("span");
+        let reply = document.createElement("span");
+        let sub1 = document.getElementById("sub1");
+        let sub2 = document.getElementById("sub2");
+        let sub3 = document.getElementById("sub3");
+        let sub4 = document.getElementById("sub4");
+        let sub5 = document.getElementById("sub5");
+        let sub6 = document.getElementById("sub6");
+        let sub7 = document.getElementById("sub7");
+        let log1 = document.getElementById("log1");
+        let log2 = document.getElementById("log2");
+        let log3 = document.getElementById("log3");
+        let log4 = document.getElementById("log4");
+        let log5 = document.getElementById("log5");
+        let log6 = document.getElementById("log6");
+        let log7 = document.getElementById("log7");
+        const roomArray = [0, sub1, sub2, sub3, sub4, sub5, sub6, sub7];
+        const logArray = [0, log1, log2, log3, log4, log5, log6, log7];
+        if (fav > 0) {
+          let style = window.getComputedStyle(item);
+          let sizeText = style.getPropertyValue("font-size"); //フォントサイズを取得
+          let colorText = style.getPropertyValue("color");
+          let green = parseFloat(colorText.replace(/rgb|0,|,0|\(|\)| /g, ""));
+          //サイズ変更
+          let size = Number(sizeText.replace("px", ""));
+          size += 0.6 * fav;
+          let newSizeText = String(size) + "px";
+          //色変更
+          green = 150;
+          let greenText = String(green);
+          let newColorText = `rgb(0, ${greenText}, 0)`;
+          item.style.color = newColorText;
+          item.style.fontSize = newSizeText;
+        }
+        item.innerText = `${msg}`;
+        thumb.classList.add("material-symbols-outlined");
+        reply.classList.add("material-symbols-outlined");
+        thumb.textContent = "thumb_up";
+        reply.textContent = "reply";
+        thumb.addEventListener("click", function () {
+          thumbUpSub();
+        });
+        reply.addEventListener("click", function () {
+          replyLogSub();
+        });
+        roomArray[roomNum].appendChild(item);
+        roomArray[roomNum].lastElementChild.appendChild(thumb);
+        roomArray[roomNum].lastElementChild.insertBefore(reply, null);
+        //スクロール
+        let bottom =
+          logArray[roomNum].scrollHeight - logArray[roomNum].clientHeight;
+        logArray[roomNum].scrollTop = bottom;
+      }
+
+      function replyDisable() {
+        alert("同じルームの相手にはリプライできません");
+      }
+
+      function replyLogSub() {
         let replyPrompt = window.prompt("返信を入力してください");
         let replyMsg = replyPrompt.replace(
           /([ \u3000]{3,})|(\r\n|\r|\n){3,}/g,
           "  "
         );
-        let roomNumSpan = event.currentTarget.closest(".roomNum").textContent;
-        console.log(roomNumSpan);
-        /*let replyNum = Number(roomNumSpan.innerHTML);
-        alert(replyNum);
-        socket.emit("reply", { replyNum, replyMsg });*/
+        let roomNumSpan = event.target.closest(".logs").id;
+        let replyRoomNum = Number(roomNumSpan.replace("log", ""));
+        socket.emit("reply", { replyRoomNum, replyMsg });
       }
 
       function replySubLog(replyNum, replyMsg) {
@@ -574,13 +711,92 @@
         mainChat.scrollTop = bottom;
       }
 
-      function thumbUp() {
-        alert("thumbs up!");
-        /*// ボタンをクリックした要素を取得
+      function thumbUpSub() {
+        // ボタンをクリックした要素を取得
         let clickedElement = event.target;
-        // 親要素を取得
+        // ふぁぼったメッセージのテキスト部分を取得
         let parent = clickedElement.parentElement;
-        alert(parent.innerText);*/
+        let text = parent.innerText.replace("thumb_upreply", "");
+        socket.emit("fav count up", text);
+      }
+
+      function thumbUpMain() {
+        // ボタンをクリックした要素を取得
+        let clickedElement = event.target;
+        // ふぁぼったメッセージのテキスト部分を取得
+        let parent = clickedElement.parentElement;
+        let text = parent.innerText.replace("thumb_upreply", "");
+        socket.emit("fav count up", text);
+      }
+
+      // 特定の文字列を含む要素を取得する関数
+      function favSubPlus(text) {
+        // ドキュメント内の全ての要素を取得
+        let allElements = document.getElementsByTagName("*");
+        let matchingElements = [];
+
+        // 各要素のtextContentを確認
+        for (let i = 0; i < allElements.length; i++) {
+          test = text + "thumb_upreply";
+          if (allElements[i].textContent == test) {
+            // 特定の文字列を含む要素を配列に追加
+            matchingElements.push(allElements[i]);
+          }
+        }
+        //配列のそれぞれの文字を大きく、緑にしていく
+        for (let i = 0; i < matchingElements.length; i++) {
+          let root = matchingElements[i];
+          let style = window.getComputedStyle(root);
+          let sizeText = style.getPropertyValue("font-size"); //フォントサイズを取得
+          let colorText = style.getPropertyValue("color");
+          let green = parseFloat(colorText.replace(/rgb|0,|,0|\(|\)| /g, ""));
+          //サイズ変更
+          let size = Number(sizeText.replace("px", ""));
+          size += 0.8;
+          let newSizeText = String(size) + "px";
+          //色変更
+          if (green != 150) {
+            green = 150;
+            let greenText = String(green);
+            let newColorText = `rgb(0, ${greenText}, 0)`;
+            matchingElements[i].style.color = newColorText;
+          }
+          matchingElements[i].style.fontSize = newSizeText;
+        }
+      }
+
+      // 特定の文字列を含む要素を取得する関数
+      function favMainPlus(text) {
+        // ドキュメント内のmainLog要素を取得
+        let mainLog = document.getElementById("mainLog");
+        let children = mainLog.children;
+        // 各要素のtextContentを確認
+        for (let i = 0; i < children.length; i++) {
+          if (children[i].textContent.includes(text)) {
+            // 特定の文字列を含む要素を配列に追加
+            matchingElements.push(children[i]);
+          }
+        }
+        //配列のそれぞれの文字を大きく、緑にしていく
+        for (let i = 0; i < matchingElements.length; i++) {
+          let root = matchingElements[i];
+          let style = window.getComputedStyle(root);
+          let sizeText = style.getPropertyValue("font-size"); //フォントサイズを取得
+          let colorText = style.getPropertyValue("color");
+          let green = parseFloat(colorText.replace(/rgb|0,|,0|\(|\)| /g, ""));
+          //サイズ変更
+          let size = Number(sizeText.replace("px", ""));
+          size += 0.8;
+          let newSizeText = String(size) + "px";
+          //色変更
+          if (green != 150) {
+            green = 150;
+            let greenText = String(green);
+            let newColorText = `rgb(0, ${greenText}, 0)`;
+            matchingElements[i].style.color = newColorText;
+          }
+          matchingElements[i].style.fontSize = newSizeText;
+        }
       }
 
       function addRoomMember(name) {

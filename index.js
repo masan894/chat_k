@@ -67,11 +67,10 @@ io.on("connection", (socket) => {
       "左側には自分のグループ、右側にはそれ以外のグループのチャットが表示されます。";
     socket.emit("topLog", topText2); //トップ表示2
 
-    //MongoDBを用いたログ読み込み処理
     try {
       for (let z = 1; z < 8; z++) {
         const logPosts = await Post.find({ num: z });
-        logPosts.forEach((p) => socket.emit("log message", p));
+        logPosts.forEach((p) => socket.emit("log message", p)); //サブログ読み込み
         socket.emit("latest log fetch");
       }
     } catch (e) {
@@ -148,7 +147,7 @@ io.on("connection", (socket) => {
           postTime: postTime,
           fav: 0,
         }); // save data to database
-        io.to(num).emit("chat message", { msg, postTime }); //ルームチャットに送信
+        io.to(num).emit("chat message2", { msg, postTime }); //ルームチャットに送信
         io.emit("log message2", { msg, num }); //全体チャットに送信
         io.emit("latest log fetch");
       } catch (e) {
@@ -164,19 +163,37 @@ io.on("connection", (socket) => {
     });
 
     //リプライ受信時の処理
-    socket.on("reply", async ({ replyNum, replyMsg }) => {
+    socket.on("reply", async ({ replyRoomNum, replyMsg }) => {
       let time = new Date();
       let timeGMT = time.getTime();
       let postTime = timeGMT + 32400000;
       const p = await Post.create({
-        name: replyNum,
+        name: replyRoomNum,
         msg: replyMsg,
-        num: replyNum,
+        num: replyRoomNum,
         postTime: postTime,
         fav: 0,
       }); // save data to database
-      io.emit("reply sub emit", { replyNum, replyMsg });
-      io.to(replyNum).emit("reply main emit", { replyNum, replyMsg, postTime });
+      io.emit("reply sub emit", { replyRoomNum, replyMsg });
+      io.to(replyRoomNum).emit("reply main emit", {
+        replyRoomNum,
+        replyMsg,
+        postTime,
+      });
+    });
+
+    //ふぁぼ受け取りの処理
+    socket.on("fav count up", async (text) => {
+      let favedPosts = await Post.find({ msg: text });
+      if (favedPosts[0].fav < 10) {
+        await Post.updateOne(
+          { msg: text },
+          { $inc: { fav: 1 } },
+          { runValidator: true }
+        );
+        io.emit("fav sub emit", text);
+        io.to(favedPosts[i].num).emit("fav main emit", text);
+      }
     });
 
     //切断時の処理
