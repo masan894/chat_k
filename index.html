@@ -576,16 +576,16 @@
         reply.classList.add("material-symbols-outlined");
         thumb.textContent = "thumb_up";
         reply.textContent = "reply";
-        thumb.addEventListener("click", function () {
-          thumbUpSub();
-        });
-        reply.addEventListener(
+        thumb.addEventListener(
           "click",
           function () {
-            replySub();
+            thumbUpSub();
           },
           { once: true }
         );
+        reply.addEventListener("click", function () {
+          replySub();
+        });
         roomArray[roomNum].appendChild(item);
         roomArray[roomNum].lastElementChild.appendChild(thumb);
         roomArray[roomNum].lastElementChild.insertBefore(reply, null);
